@@ -4,11 +4,14 @@
   <title>Mapt</title>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <% if @use_gmaps.present? %>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxQ-A6TUhQ1yGPwWKvANmk9Q15MiOhtDs"></script>
+  <% end %>
   <%= csrf_meta_tags %>
 </head>
-<body>
+<%= content_tag 'body', data: {controller: controller.controller_path, action: controller.action_name, env: Rails.env} do %>
 
 <%= yield %>
 
-</body>
+<% end %>
 </html>

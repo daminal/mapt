@@ -1,3 +1,15 @@
 // Place all the styles related to the zones controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+body[data-controller='zones'] {
+
+}
+
+body[data-controller='zones'][data-action='new'],
+body[data-controller='zones'][data-action='create'],
+body[data-controller='zones'][data-action='edit'],
+body[data-controller='zones'][data-action='update'] {
+  #map-canvas {
+    height: 200px;
+  }
+}

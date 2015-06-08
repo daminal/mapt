@@ -38,7 +38,7 @@ class PolygonCreator
   polygonCreated: (data, creator) ->
     creator.newPen()
     creator.callback(data)
-    
+
 
 this.Mapt.Utils.PolygonCreator = PolygonCreator
 
@@ -192,6 +192,7 @@ class Polygon
       _this.coords.push value.getLatLng()
 
     @polygonObj = new google.maps.Polygon
+      editable: true
       paths: @coords
       strokeColor: '#FF0000'
       strokeOpacity: 0.8

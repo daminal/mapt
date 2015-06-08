@@ -192,6 +192,7 @@ class Polygon
       _this.coords.push value.getLatLng()
 
     @polygonObj = new google.maps.Polygon
+      draggable: true
       editable: true
       paths: @coords
       strokeColor: '#FF0000'

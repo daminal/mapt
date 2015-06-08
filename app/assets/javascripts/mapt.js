@@ -1,3 +1,7 @@
+if (this.Mapt === null || this.Mapt === undefined) {
+  this.Mapt = {components: {},Utils: {}};
+}
+
 (function ($, undefined) {
   $(function () {
     var $body = $("body")

@@ -13,5 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require mapt
-//= require_tree .
-//= require controllers
+//= require_tree ./utils
+//= require_tree ./controllers
+

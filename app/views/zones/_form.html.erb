@@ -11,13 +11,35 @@
     </div>
   <% end %>
 
+
+
+  <span class="instructions"> Instructions:</span>
+  <ol>
+    <li>Enter the name of the zone. </li>
+    <li>Click on the map to bring up the first point and its red marker. </li>
+    <li>Keep clicking to build the shape. </li>
+    <li>Then, click the first point's red marker to finish the zone.</li>
+  </ol>
+  </p>
+  </div>
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
+   <div id="side">
+    <input id="reset" value="Reset" type="button" class="navi"/>
+    <input id="showData"  value="Show Paths (class function) " type="button" class="navi"/>
+    <div   id="dataPanel">
+    </div>
+  </div>
+
+
   <div id="map-canvas" class="map">
   Map goes here
   </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>

@@ -1,23 +1,44 @@
 class PolygonCreator
   map: null,
+  pens: null,
   pen: null,
   event: null,
+  callback: ->
 
-  constructor: (map) ->
+  constructor: (map, callback) ->
     @map = map;
-    @pen = new Pen(@map)
+    @pens = new Array
+    @newPen()
+    @callback = callback
 
     thisPen = @pen
+    _this = this
     @event = google.maps.event.addListener @map, 'click', (event) ->
-      thisPen.draw(event.latLng)
+      _this.mapClicked(event)
 
   showData: ->
+    @pen.getDataAsString()
+
+  getData: ->
     @pen.getData()
 
   destroy: ->
     @pen.deleteMis()
     @pen.polygon.remove() if @pen.polygon?
     google.maps.event.removeListener(@event)
+
+  mapClicked: (event) ->
+    @pen.draw(event.latLng, @polygonCreated)
+
+  newPen: ->
+    @pens.push new Pen(@map, this)
+    @pen = @pens[@pens.length-1]
+    i = 0
+
+  polygonCreated: (data, creator) ->
+    creator.newPen()
+    creator.callback(data)
+    
 
 this.Mapt.Utils.PolygonCreator = PolygonCreator
 
@@ -27,17 +48,20 @@ class Pen
   polyline: null,
   polygon: null,
   currentDot: null,
+  parent: null,
 
-  constructor: (map) ->
+  constructor: (map, creator) ->
     @map = map
     @listOfDots = new Array
+    @parent = creator
 
-  draw: (latLng) ->
+  draw: (latLng, callback) ->
     if @polygon?
       alert('Click Reset to draw another')
     else
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
+        callback(@getData(), @parent)
       else
         if @polyline?
           @polyline.remove()
@@ -67,10 +91,20 @@ class Pen
     @listOfDots
   getData: ->
     if @polygon?
-      data = ''
+      data = []
       paths = @polygon.getPlots()
       paths.getAt(0).forEach (value, index) ->
-        data += value.toString()
+        data.push({lat: value.A, lng: value.F})
+      return data
+    else
+      return null
+  getDataAsString: ->
+    dataStr = ''
+    data = @getData()
+    if data?
+      data.forEach (value, index) ->
+        dataStr += "," unless dataStr.length==0
+        dataStr += "(lat: #{value['lat']}, lng: #{value['lng']})"
       return data
     else
       return null
@@ -94,13 +128,14 @@ class Dot
     @addListener()
 
   addListener: ->
-    parent = @parent
+    thisPen = @parent
     thisMarket = @markerObj
     thisDot = this
+    callback = thisPen.parent.polygonCreated
 
     google.maps.event.addListener thisMarket, 'click', ->
-      parent.setCurrentDot thisDot
-      parent.draw thisMarket.getPosition()
+      thisPen.setCurrentDot thisDot
+      thisPen.draw thisMarket.getPosition(), callback
 
   getLatLng: ->
     return @latLng
@@ -123,9 +158,9 @@ class Line
     @coords = new Array
 
     if @listOfDots.length > 1
-      thisObj = this
+      _this = this
       $.each @listOfDots, (index, value) ->
-        thisObj.coords.push value.getLatLng()
+        _this.coords.push value.getLatLng()
       @polylineObj = new google.maps.Polyline
         path: @coords
         strokeColor: '#FF0000'
@@ -151,10 +186,10 @@ class Polygon
     @parent = pen
     @coords = new Array
 
-    thisObj = this
+    _this = this
 
     $.each @listOfDots, (index, value) ->
-      thisObj.coords.push value.getLatLng()
+      _this.coords.push value.getLatLng()
 
     @polygonObj = new google.maps.Polygon
       paths: @coords
@@ -217,22 +252,22 @@ class Info
     $(@button).attr('type', 'button')
     $(@button).val('Change Color');
 
-    thisObj = this
+    _this = this
     @infoWidObj = new google.maps.InfoWindow
-      content: thisObj.getContent()
+      content: _this.getContent()
 
 
   changeColor: ->
     @parent.setColor($(@color).val());
 
   getContent: ->
-    thisObj = this
+    _this = this
     content = document.createElement('div')
 
     $(@color).val(@parent.getColor())
 
     $(@button).click ->
-      thisObj.changeColor()
+      _this.changeColor()
 
     $(content).append(@color)
     $(content).append(@button)

@@ -1,4 +1,4 @@
-PolygonManager = this.Mapt.Utils.PolygonManager
+PolygonManager = this.Mapt.Utils.GoogleMaps.PolygonManager
 
 class ZonesController
   init: ->

@@ -1,5 +1,6 @@
 class PolygonManager
   map: null,
+  polygons: null,
   pens: null,
   pen: null,
   event: null,
@@ -10,6 +11,7 @@ class PolygonManager
     throw "You must pass a google map object as the first argument" unless map?
 
     @map = map;
+    @polygons = new Array
     @onNewPolygon = options['onNewPolygon']
     @onCompletePolygon = options['onCompletePolygon']
 
@@ -32,14 +34,14 @@ class PolygonManager
   setPen: (pen) ->
     @pen = pen
 
-  polygonCreated: (data, manager) ->
+  polygonCreated: (data, polygon, manager) ->
     @pen = null
+    manager.polygons.push(polygon)
     manager.onCompletePolygon data
 
   destroy: ->
-    @pens.forEach (value, index) ->
-      value.clear()
-      value.polygon.remove() if value.polygon?
+    for polygon in @polygons
+      polygon.remove() if polygon?
     google.maps.event.removeListener(@event)
 
 
@@ -64,7 +66,7 @@ class Pen
     unless @polygon?
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
-        @onCompletePolygon(@getData(), @parent) if @onCompletePolygon?
+        @onCompletePolygon(@getData(), @polygon, @parent) if @onCompletePolygon?
       else
         if @polyline?
           @polyline.remove()

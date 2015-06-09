@@ -1,7 +1,6 @@
 class PolygonManager
   map: null,
   polygons: null,
-  pens: null,
   pen: null,
   event: null,
   onNewPolygon: null,
@@ -23,9 +22,7 @@ class PolygonManager
     @pen.getData()
 
   mapClicked: (event) ->
-    return unless @pen?
-    
-    @pen.draw event.latLng
+    @pen.draw event.latLng if @pen?
 
   newPen: ->
     @pen = new Pen(@map, @, @polygonCreated)

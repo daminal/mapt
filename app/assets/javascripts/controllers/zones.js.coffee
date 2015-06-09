@@ -9,24 +9,24 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
-    creator = createPolygonManager map
+    manager = createPolygonManager map
 
     $('#addZone').click ->
-      creator.newPen()
+      manager.newPen()
       $(this).attr('disabled','disabled')
 
     $('#reset').click ->
-      creator.destroy()
-      creator = null
-      creator = createPolygonManager map
+      manager.destroy()
+      manager = null
+      manager = createPolygonManager map
       $('#addZone').removeAttr('disabled')
 
     $('#showData').click ->
       $('#dataPanel').empty()
-      if null == creator.showData()
+      if null == manager.showData()
         $('#dataPanel').append 'Please first create a polygon'
       else
-        $('#dataPanel').append creator.showData()
+        $('#dataPanel').append manager.showData()
 
   createPolygonManager = (map) ->
     options =

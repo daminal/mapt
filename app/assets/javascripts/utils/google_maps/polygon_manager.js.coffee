@@ -32,12 +32,9 @@ class PolygonManager
     # Add google maps event listeners
     _this = @
     @events.push google.maps.event.addDomListener @map, 'click', (event) ->
-      _this._mapClicked(event)
-    @events.push google.maps.event.addDomListener window, 'keyup', (event) ->
-      code = if event.keyCode then event.keyCode else event.which
-      switch code
-        when 27
-          _this.cancelDraw()
+      unless _this.pen?
+        for polygon in _this.polygons
+          polygon.setEditable false
 
   newPen: ->
     @pen = new G.Pen(@map, @)
@@ -48,7 +45,7 @@ class PolygonManager
 
   cancelDraw: ->
     if @pen?
-      @pen.clear()
+      @pen.cancel()
       @pen = null
     @onCancelDraw() if @onCancelDraw?
 

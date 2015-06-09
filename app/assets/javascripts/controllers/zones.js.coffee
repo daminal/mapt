@@ -56,11 +56,15 @@ class ZonesController
         console.log(polygon)
         console.log(type)
 
-      onPolygonClicked: (polygon, rightClick) ->
-        console.log('Polygon clicked')
-        console.log(polygon)
+      onPolygonClicked: (polygon, latLng, rightClick) ->
         if rightClick
-          polygon.info.show()
+          console.log('Polygon right clicked')
+          # polygon.info.show()
+        else
+          console.log('Polygon left clicked')
+        console.log(polygon)
+        console.log(latLng)
+
 
     return new PolygonManager map, options
 

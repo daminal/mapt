@@ -14,6 +14,7 @@ class PolygonManager
 
     @map = map;
     @polygons = new Array
+    @events = new Array
     @onNewPolygon = options['onNewPolygon']
     @onCompletePolygon = options['onCompletePolygon']
 

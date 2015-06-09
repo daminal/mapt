@@ -2,8 +2,10 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
-# Select polygon (active polygon)
-# Delete selected
+# Accept polygons in constructor
+# setPolygons(polygons)
+# addPolygon(polygon)
+# addPolygons(polygons)
 
 
 class PolygonManager

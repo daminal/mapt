@@ -49,8 +49,12 @@ class Polygon
 
     @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
       unless _this.isDragging
-        _this.setEditable true
-        _this.manager.onPolygonClicked(_this, event.latLng, false) if _this.manager.onPolygonClicked?
+        if _this.isEditable()
+          _this.manager.onPolygonClicked(_this, event.latLng, false) if _this.manager.onPolygonClicked?
+        else
+          _this.manager.deselectAll()
+          _this.setEditable true
+          _this.manager.onPolygonSelected(_this) if _this.manager.onPolygonSelected?
 
     @events.push google.maps.event.addListener path, 'insert_at', (event) ->
       unless _this.isDragging

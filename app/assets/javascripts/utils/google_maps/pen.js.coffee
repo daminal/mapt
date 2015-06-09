@@ -36,8 +36,8 @@ class Pen
       @isDrawing = true
       if @currentDot? and @listOfDots.length > 1 and @currentDot.latLng == @listOfDots[0].latLng
         @drawPolygon(this.listOfDots, true)
+        @manager.onPolygonSelected(@polygon) if @manager.onPolygonSelected?
         @isDrawing = false
-        @manager._polygonCreated(@polygon)
       else
         if @polyline?
           @polyline.remove()
@@ -50,6 +50,7 @@ class Pen
   drawPolygon: (listOfDots, editable, color) ->
     _this = this
     @polygon = new G.Polygon listOfDots, @map, @manager, editable, color
+    @manager._polygonCreated(@polygon)
     @clear()
 
   clear: ->

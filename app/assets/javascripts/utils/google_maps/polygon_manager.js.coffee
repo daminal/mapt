@@ -16,6 +16,7 @@ class PolygonManager
   onCancelDraw: null,
   onPolygonChanged: null,
   onPolygonClicked: null,
+  onPolygonSelected: null,
 
   constructor: (map, options={}) ->
     throw "You must pass a google map object as the first argument" unless map?
@@ -28,15 +29,16 @@ class PolygonManager
     @onCancelDraw = options['onCancelDraw']
     @onPolygonChanged = options['onPolygonChanged']
     @onPolygonClicked = options['onPolygonClicked']
+    @onPolygonSelected = options['onPolygonSelected']
 
     # Add google maps event listeners
     _this = @
     @events.push google.maps.event.addDomListener @map, 'click', (event) ->
       unless _this.pen?
-        for polygon in _this.polygons
-          polygon.setEditable false
+        _this.deselectAll()
 
   newPen: ->
+    @deselectAll()
     @pen = new G.Pen(@map, @)
     @map.setOptions({draggableCursor:'pointer'});
 
@@ -48,6 +50,10 @@ class PolygonManager
       @pen = null
     @_resetCursor()
     @onCancelDraw() if @onCancelDraw?
+
+  deselectAll: ->
+    for polygon in @polygons
+      polygon.setEditable false
 
   destroy: ->
     for polygon in @polygons

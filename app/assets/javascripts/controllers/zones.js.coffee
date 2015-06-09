@@ -40,30 +40,33 @@ class ZonesController
   createPolygonManager = (map) ->
     options =
       onStartDraw: ->
-        console.log('Start Draw')
         disableAddZoneButton()
+        console.log('Start Draw')
 
       onCancelDraw: ->
-        console.log('Cancel Draw')
         enableAddZoneButton()
+        console.log('Cancel Draw')
 
       onCompletePolygon: (polygon) ->
-        console.log('Polygon Created')
         console.log(polygon)
         enableAddZoneButton()
+        console.log('Polygon Created')
 
       onPolygonChanged: (polygon, type) ->
         console.log(polygon)
-        console.log(type)
+        console.log("Polygon Changed (#{type})")
 
       onPolygonClicked: (polygon, latLng, rightClick) ->
-        if rightClick
-          console.log('Polygon right clicked')
-          # polygon.info.show()
-        else
-          console.log('Polygon left clicked')
         console.log(polygon)
         console.log(latLng)
+        if rightClick
+          console.log('Polygon right clicked')
+        else
+          console.log('Polygon left clicked')
+
+      onPolygonSelected: (polygon) ->
+        console.log(polygon)
+        console.log('Polygon selected')
 
 
     return new PolygonManager map, options

@@ -38,7 +38,7 @@ class ZonesController
         $('#dataPanel').append manager.showData()
 
   createPolygonManager = (map) ->
-    options =
+    return new PolygonManager map,
       onStartDraw: ->
         disableAddZoneButton()
         console.log('Start Draw')
@@ -67,9 +67,6 @@ class ZonesController
       onPolygonSelected: (polygon) ->
         console.log(polygon)
         console.log('Polygon selected')
-
-
-    return new PolygonManager map, options
 
   enableAddZoneButton = ->
     $('#addZone').removeAttr('disabled')

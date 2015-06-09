@@ -91,13 +91,13 @@ body[data-controller='zones'] {
     border-top: 2px solid #e10c0c;
     border-bottom: 2px solid #e10c0c;
   }
+  #map-canvas {
+    height: 500px;
+  }
 }
 
 body[data-controller='zones'][data-action='new'],
 body[data-controller='zones'][data-action='create'],
 body[data-controller='zones'][data-action='edit'],
 body[data-controller='zones'][data-action='update'] {
-  #map-canvas {
-    height: 200px;
-  }
 }

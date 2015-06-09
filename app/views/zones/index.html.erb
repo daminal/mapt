@@ -1,3 +1,4 @@
+<% if false %>
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Zones</h1>
@@ -24,3 +25,21 @@
 <br>
 
 <%= link_to 'New Zone', new_zone_path %>
+<% end %>
+
+<h1>Trash Zones</h1>
+
+<div id="side">
+  <input id="addZone" value="Add Zone" type="button" class="navi"/>
+  <input id="reset" value="Reset" type="button" class="navi"/>
+  <% if false %>
+    <input id="showData"  value="Show Paths (class function) " type="button" class="navi"/>
+  <% end %>
+  <div   id="dataPanel">
+  </div>
+</div>
+
+
+<div id="map-canvas" class="map">
+  Map goes here
+</div>

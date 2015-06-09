@@ -1,6 +1,6 @@
 class ZonesController < ApplicationController
   before_action :set_zone, only: [:show, :edit, :update, :destroy]
-  before_action :use_gmaps, only: [:new, :create, :edit, :update]
+  before_action :use_gmaps, only: [:index]
 
   # GET /zones
   # GET /zones.json

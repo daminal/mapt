@@ -38,15 +38,15 @@ class PolygonManager
 
   newPen: ->
     @pen = new G.Pen(@map, @)
-    @onStartDraw(@pen) if @onStartDraw?
+    @map.setOptions({draggableCursor:'pointer'});
 
-  setPen: (pen) ->
-    @pen = pen
+    @onStartDraw(@pen) if @onStartDraw?
 
   cancelDraw: ->
     if @pen?
       @pen.cancel()
       @pen = null
+    @_resetCursor()
     @onCancelDraw() if @onCancelDraw?
 
   destroy: ->
@@ -56,12 +56,19 @@ class PolygonManager
     for event in @events
       google.maps.event.removeListener event
 
+    @_resetCursor()
+
   _mapClicked: (event) ->
     @pen.draw event.latLng if @pen?
 
   _polygonCreated: (polygon) ->
     @pen = null
     @polygons.push polygon
+    @_resetCursor()
     @onCompletePolygon polygon if @onCompletePolygon?
+
+  _resetCursor: () ->
+    @map.setOptions({draggableCursor:'url(http://maps.gstatic.com/mapfiles/openhand_8_8.cur) 8 8, default '});
+
 
 G.PolygonManager = PolygonManager

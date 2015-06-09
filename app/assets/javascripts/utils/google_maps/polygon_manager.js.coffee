@@ -21,18 +21,18 @@ class PolygonManager
     @event = google.maps.event.addListener @map, 'click', (event) ->
       _this.mapClicked(event)
 
-  getData: ->
-    @pen.getData()
-
-  mapClicked: (event) ->
-    @pen.draw event.latLng if @pen?
-
   newPen: ->
     @pen = new G.Pen(@map, @, @polygonCreated)
     @onNewPolygon() if @onNewPolygon?
 
   setPen: (pen) ->
     @pen = pen
+
+  getData: ->
+    @pen.getData()
+
+  mapClicked: (event) ->
+    @pen.draw event.latLng if @pen?
 
   polygonCreated: (data, polygon, manager) ->
     @pen = null

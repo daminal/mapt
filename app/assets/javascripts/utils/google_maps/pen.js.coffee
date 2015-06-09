@@ -49,7 +49,7 @@ class Pen
 
   drawPolygon: (listOfDots, editable, color) ->
     _this = this
-    @polygon = new G.Polygon listOfDots, @map, @manager, editable, color
+    @polygon = new G.Polygon listOfDots, @manager, @map, editable, color
     @manager._polygonCreated(@polygon)
     @clear()
 

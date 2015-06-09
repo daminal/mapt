@@ -10,7 +10,7 @@ class Polygon
   events: null,
   isDragging: false
 
-  constructor: (listOfDots, map, manager, editable=false, color='#FF0000') ->
+  constructor: (listOfDots, manager, map, editable=false, color='#FF0000') ->
     @listOfDots = listOfDots
     @map = map
     @manager = manager
@@ -20,7 +20,7 @@ class Polygon
     _this = this
 
     $.each @listOfDots, (index, value) ->
-      _this.coords.push value.getLatLng()
+      _this.addDot value
 
     @polygonObj = new google.maps.Polygon
       draggable: true
@@ -83,6 +83,10 @@ class Polygon
     for event in @events
       google.maps.event.removeListener event
 
+  addDot: (value) ->
+    latLng = if (value instanceof G.Dot) then value.latLng else value
+    @coords.push(latLng)
+
   getPolygonObj: ->
     @polygonObj
 
@@ -100,6 +104,10 @@ class Polygon
       fillColor: color
       strokeColor: color
       strokeWeight: 2
+
+  setMap: (map) ->
+    @map = map
+    @getPolygonObj().setMap(@map)
 
   deselect: ->
     if @isEditable()

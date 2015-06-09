@@ -1,4 +1,5 @@
 PolygonManager = this.Mapt.Utils.GoogleMaps.PolygonManager
+Polygon = this.Mapt.Utils.GoogleMaps.Polygon
 
 ### Note:
     Given a polygon, you can get its data points like so:
@@ -17,7 +18,23 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
-    manager = createPolygonManager map
+    # PolygonManager accepts an array of Polygon objects to show immediately
+    # You can use this to display existing zones loaded from the db when the page loads
+    # For now, I'm just creating one polygon here, wrapping it in an array, and passing
+    # it to createPolygonManager.  The result is that you see that polygon on the map
+    # when you load the page.
+
+    coords = [
+      new google.maps.LatLng(40.399605, -80.020731),
+      new google.maps.LatLng(40.590709, -79.862879),
+      new google.maps.LatLng(40.718521, -80.098347),
+      new google.maps.LatLng(40.525592, -80.22322)
+    ]
+    initialPolygons = [
+      new Polygon(coords)
+    ]
+
+    manager = createPolygonManager map, initialPolygons
 
     $('#addZone').click ->
       manager.startDraw()
@@ -34,7 +51,7 @@ class ZonesController
       else
         $('#dataPanel').append manager.showData()
 
-  createPolygonManager = (map) ->
+  createPolygonManager = (map, initialPolygons) ->
     ####
     # The PolygonManager object takes a map as its first argument (required)
     # and an options hash as its second argument (optional)
@@ -74,6 +91,7 @@ class ZonesController
     ####
 
     return new PolygonManager map,
+      polygons: initialPolygons
       onStartDraw: ->
         disableAddZoneButton()
         console.log('Start Draw')

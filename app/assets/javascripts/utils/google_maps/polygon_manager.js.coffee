@@ -2,11 +2,9 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
-# Accept polygons in constructor
-# setPolygons(polygons)
-# addPolygon(polygon)
-# addPolygons(polygons)
 # removePolygon(polygon)
+# better color management
+# info window management????
 
 
 class PolygonManager
@@ -38,6 +36,8 @@ class PolygonManager
     @onPolygonDeselected = options['onPolygonDeselected']
     @onDeselectAll = options['onDeselectAll']
 
+    @addPolygons(options['polygons']) if options['polygons']?
+
     # Add google maps event listeners
     _this = @
     @events.push google.maps.event.addDomListener @map, 'click', (event) ->
@@ -62,6 +62,19 @@ class PolygonManager
     for polygon in @polygons
       polygon.deselect()
     @onDeselectAll() if @onDeselectAll? and runCallback
+
+  setPolygons: (polygons) ->
+    @reset()
+    @addPolygons(polygons)
+
+  addPolygon: (polygon) ->
+    polygon.setMap(@map)
+    polygon.manager = @
+    @polygons.push(polygon)
+
+  addPolygons: (polygons) ->
+    for polygon in polygons
+      @addPolygon(polygon)
 
   reset: ->
     for polygon in @polygons

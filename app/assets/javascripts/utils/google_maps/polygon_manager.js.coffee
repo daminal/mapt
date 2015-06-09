@@ -12,11 +12,13 @@ class PolygonManager
   pen: null,
   events: null,
   onStartDraw: null,
-  onCompletePolygon: null,
+  onFinishDraw: null,
   onCancelDraw: null,
   onPolygonChanged: null,
   onPolygonClicked: null,
   onPolygonSelected: null,
+  onPolygonDesected: null,
+  onDeselectAll: null,
 
   constructor: (map, options={}) ->
     throw "You must pass a google map object as the first argument" unless map?
@@ -25,11 +27,13 @@ class PolygonManager
     @polygons = new Array
     @events = new Array
     @onStartDraw = options['onStartDraw']
-    @onCompletePolygon = options['onCompletePolygon']
+    @onFinishDraw = options['onFinishDraw']
     @onCancelDraw = options['onCancelDraw']
     @onPolygonChanged = options['onPolygonChanged']
     @onPolygonClicked = options['onPolygonClicked']
     @onPolygonSelected = options['onPolygonSelected']
+    @onPolygonDeselected = options['onPolygonDeselected']
+    @onDeselectAll = options['onDeselectAll']
 
     # Add google maps event listeners
     _this = @
@@ -37,7 +41,7 @@ class PolygonManager
       unless _this.pen?
         _this.deselectAll()
 
-  newPen: ->
+  startDraw: ->
     @deselectAll()
     @pen = new G.Pen(@map, @)
     @map.setOptions({draggableCursor:'pointer'});
@@ -51,9 +55,10 @@ class PolygonManager
     @_resetCursor()
     @onCancelDraw() if @onCancelDraw?
 
-  deselectAll: ->
+  deselectAll: (runCallback=true) ->
     for polygon in @polygons
-      polygon.setEditable false
+      polygon.deselect()
+    @onDeselectAll() if @onDeselectAll? and runCallback
 
   destroy: ->
     for polygon in @polygons
@@ -71,7 +76,7 @@ class PolygonManager
     @pen = null
     @polygons.push polygon
     @_resetCursor()
-    @onCompletePolygon polygon if @onCompletePolygon?
+    @onFinishDraw polygon if @onFinishDraw?
 
   _resetCursor: () ->
     @map.setOptions({draggableCursor:'url(http://maps.gstatic.com/mapfiles/openhand_8_8.cur) 8 8, default '});

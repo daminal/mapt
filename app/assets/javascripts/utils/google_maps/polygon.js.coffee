@@ -52,7 +52,7 @@ class Polygon
         if _this.isEditable()
           _this.manager.onPolygonClicked(_this, event.latLng, false) if _this.manager.onPolygonClicked?
         else
-          _this.manager.deselectAll()
+          _this.manager.deselectAll(false)
           _this.setEditable true
           _this.manager.onPolygonSelected(_this) if _this.manager.onPolygonSelected?
 
@@ -100,6 +100,11 @@ class Polygon
       fillColor: color
       strokeColor: color
       strokeWeight: 2
+
+  deselect: ->
+    if @isEditable()
+      @setEditable(false)
+      @manager.onPolygonDeselected(@) if @manager.onPolygonDeselected?
 
   setEditable: (editable) ->
     @getPolygonObj().setOptions

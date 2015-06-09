@@ -30,7 +30,7 @@ class ZonesController
 
   createPolygonManager = (map) ->
     options =
-      onNewPolygon: ->
+      onNewPolygon: (pen) ->
         $('#addZone').attr('disabled','disabled')
 
       onCompletePolygon: (data) ->

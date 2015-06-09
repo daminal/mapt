@@ -18,14 +18,14 @@ class PolygonManager
     @onNewPolygon = options['onNewPolygon']
     @onCompletePolygon = options['onCompletePolygon']
 
+    # Add google maps event listeners
     _this = @
-    event = google.maps.event.addListener @map, 'click', (event) ->
+    events.push google.maps.event.addListener @map, 'click', (event) ->
       _this.mapClicked(event)
-    @events.push(event)
 
   newPen: ->
     @pen = new G.Pen(@map, @, @polygonCreated)
-    @onNewPolygon() if @onNewPolygon?
+    @onNewPolygon(@pen) if @onNewPolygon?
 
   setPen: (pen) ->
     @pen = pen

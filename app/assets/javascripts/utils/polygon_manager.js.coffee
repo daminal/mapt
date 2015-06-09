@@ -1,4 +1,4 @@
-class PolygonCreator
+class PolygonManager
   map: null,
   pens: null,
   pen: null,
@@ -34,9 +34,9 @@ class PolygonCreator
   setPen: (pen) ->
     @pen = pen
 
-  polygonCreated: (data, creator) ->
+  polygonCreated: (data, manager) ->
     @pen = null
-    creator.onCompletePolygon data
+    manager.onCompletePolygon data
 
   destroy: ->
     @pens.forEach (value, index) ->
@@ -45,7 +45,7 @@ class PolygonCreator
     google.maps.event.removeListener(@event)
 
 
-this.Mapt.Utils.PolygonCreator = PolygonCreator
+this.Mapt.Utils.PolygonManager = PolygonManager
 
 class Pen
   map: null,
@@ -55,10 +55,10 @@ class Pen
   currentDot: null,
   parent: null,
 
-  constructor: (map, creator) ->
+  constructor: (map, manager) ->
     @map = map
     @listOfDots = new Array
-    @parent = creator
+    @parent = manager
 
   draw: (latLng, onCompletePolygon) ->
     unless @polygon?

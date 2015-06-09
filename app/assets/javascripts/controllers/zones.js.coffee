@@ -1,4 +1,4 @@
-PolygonCreator = this.Mapt.Utils.PolygonCreator
+PolygonManager = this.Mapt.Utils.PolygonManager
 
 class ZonesController
   init: ->
@@ -9,7 +9,27 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
-    polygonCreatorOptions =
+    creator = createPolygonManager map
+
+    $('#addZone').click ->
+      creator.newPen()
+      $(this).attr('disabled','disabled')
+
+    $('#reset').click ->
+      creator.destroy()
+      creator = null
+      creator = createPolygonManager map
+      $('#addZone').removeAttr('disabled')
+
+    $('#showData').click ->
+      $('#dataPanel').empty()
+      if null == creator.showData()
+        $('#dataPanel').append 'Please first create a polygon'
+      else
+        $('#dataPanel').append creator.showData()
+
+  createPolygonManager = (map) ->
+    options =
       onNewPolygon: ->
         $('#addZone').attr('disabled','disabled')
 
@@ -25,22 +45,6 @@ class ZonesController
 
         $('#addZone').removeAttr('disabled')
 
-    creator = new PolygonCreator map, polygonCreatorOptions
-
-    $('#addZone').click ->
-      creator.newPen()
-      $(this).attr('disabled','disabled')
-    $('#reset').click ->
-      creator.destroy()
-      creator = null
-      creator = new PolygonCreator map, polygonCreatorOptions
-      $('#addZone').removeAttr('disabled')
-
-    $('#showData').click ->
-      $('#dataPanel').empty()
-      if null == creator.showData()
-        $('#dataPanel').append 'Please first create a polygon'
-      else
-        $('#dataPanel').append creator.showData()
+    return new PolygonManager map, options
 
 this.Mapt.zones= new ZonesController

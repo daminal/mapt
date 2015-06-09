@@ -30,13 +30,14 @@ class ZonesController
 
   createPolygonManager = (map) ->
     options =
-      onNewPolygon: (pen) ->
+      onNewPolygon: ->
         disableAddZoneButton()
 
-      onCancelPolygon: (pen) ->
+      onCancelPolygon: ->
         enableAddZoneButton()
 
-      onCompletePolygon: (data) ->
+      onCompletePolygon: (polygon) ->
+        data = polygon.getData()
         fieldContainer = $('#dataPanel')
         for point in data
           # latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
@@ -47,6 +48,9 @@ class ZonesController
           fieldContainer.append(lngField)
 
         enableAddZoneButton()
+      onPolygonChanged: (polygon, type) ->
+        console.log(polygon);
+        console.log(type);
 
     return new PolygonManager map, options
 

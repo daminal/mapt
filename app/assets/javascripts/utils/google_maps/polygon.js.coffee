@@ -5,16 +5,19 @@ class Polygon
   listOfDots: null,
   map: null,
   coords: null,
-  parent: null,
+  manager: null,
   polygonObj: null,
   des: 'Hello',
   info: null,
+  events: null,
+  isDragging: false,
 
-  constructor: (listOfDots, map, pen, color) ->
+  constructor: (listOfDots, map, manager, color) ->
     @listOfDots = listOfDots
     @map = map
-    @parent = pen
+    @manager = manager
     @coords = new Array
+    @events = new Array
 
     _this = this
 
@@ -32,6 +35,23 @@ class Polygon
       fillOpacity: 0.35
       map: @map
 
+    path = @polygonObj.getPath()
+    @events.push google.maps.event.addListener path, 'insert_at', (event) ->
+      unless _this.isDragging
+        _this.manager.onPolygonChanged(_this, 'insert') if _this.manager.onPolygonChanged?
+    @events.push google.maps.event.addListener path, 'set_at', (event) ->
+      unless _this.isDragging
+        _this.manager.onPolygonChanged(_this, 'move') if _this.manager.onPolygonChanged?
+    @events.push google.maps.event.addListener path, 'remove_at', (event) ->
+      unless _this.isDragging
+        _this.manager.onPolygonChanged(_this, 'remove') if _this.manager.onPolygonChanged?
+    @events.push google.maps.event.addListener @polygonObj, 'dragstart', (event) ->
+      _this.isDragging = true
+      _this.manager.onPolygonChanged(_this, 'remove') if _this.manager.onPolygonChanged?
+    @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
+      _this.isDragging = false
+      _this.manager.onPolygonChanged(_this, 'drag') if _this.manager.onPolygonChanged?
+
     @info = new G.Info(this, @map)
 
     @addListener()
@@ -45,6 +65,8 @@ class Polygon
   remove: ->
     @info.remove()
     @polygonObj.setMap(null)
+    for event in @events
+      google.maps.event.removeListener event
 
   getContent: ->
     @des
@@ -67,5 +89,11 @@ class Polygon
       strokeColor: color
       strokeWeight: 2
 
+  getData: ->
+    data = []
+    paths = @getPlots()
+    paths.getAt(0).forEach (value, index) ->
+      data.push({lat: value.A, lng: value.F})
+    return data
 
 G.Polygon = Polygon

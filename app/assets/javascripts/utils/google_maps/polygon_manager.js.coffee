@@ -1,6 +1,11 @@
 this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
+#### TODO
+# Select polygon (active polygon)
+# Delete selected
+
+
 class PolygonManager
   map: null,
   polygons: null,
@@ -8,7 +13,8 @@ class PolygonManager
   events: null,
   onNewPolygon: null,
   onCompletePolygon: null,
-  onCancelPolygon: null
+  onCancelPolygon: null,
+  onPolygonChanged: null,
 
   constructor: (map, options={}) ->
     throw "You must pass a google map object as the first argument" unless map?
@@ -19,6 +25,7 @@ class PolygonManager
     @onNewPolygon = options['onNewPolygon']
     @onCompletePolygon = options['onCompletePolygon']
     @onCancelPolygon = options['onCancelPolygon']
+    @onPolygonChanged = options['onPolygonChanged']
 
     # Add google maps event listeners
     _this = @
@@ -49,16 +56,16 @@ class PolygonManager
   mapClicked: (event) ->
     @pen.draw event.latLng if @pen?
 
-  polygonCreated: (data, polygon, manager) ->
+  polygonCreated: (polygon, manager) ->
     @pen = null
     manager.polygons.push(polygon)
-    manager.onCompletePolygon data if manager.onCompletePolygon?
+    manager.onCompletePolygon polygon if manager.onCompletePolygon?
 
   destroy: ->
     for polygon in @polygons
       polygon.remove() if polygon?
 
     for event in @events
-      google.maps.event.removeListener(event)
+      google.maps.event.removeListener event
 
 G.PolygonManager = PolygonManager

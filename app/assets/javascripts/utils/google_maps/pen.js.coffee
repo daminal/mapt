@@ -21,17 +21,19 @@ class Pen
     unless @polygon?
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
-        @onCompletePolygon(@getData(), @polygon, @parent) if @onCompletePolygon?
+        @onCompletePolygon(@polygon, @parent) if @onCompletePolygon?
       else
         if @polyline?
           @polyline.remove()
         dot = new G.Dot(latLng, @map, this)
         @listOfDots.push(dot)
         if @listOfDots.length > 1
-          @polyline = new G.Line(@listOfDots, @map)
+          _this = this
+          @polyline = new G.Line @listOfDots, @map
 
   drawPolygon: (listOfDots, color, des, id) ->
-    @polygon = new G.Polygon(listOfDots, @map, this, color, des, id)
+    _this = this
+    @polygon = new G.Polygon listOfDots, @map, @parent, color
     @clear()
   clear: ->
     $.each @listOfDots, (index, value) ->
@@ -49,25 +51,6 @@ class Pen
     @currentDot = dot
   getListOfDots: ->
     @listOfDots
-  getData: ->
-    if @polygon?
-      data = []
-      paths = @polygon.getPlots()
-      paths.getAt(0).forEach (value, index) ->
-        data.push({lat: value.A, lng: value.F})
-      return data
-    else
-      return null
-  getDataAsString: ->
-    dataStr = ''
-    data = @getData()
-    if data?
-      data.forEach (value, index) ->
-        dataStr += "," unless dataStr.length==0
-        dataStr += "(lat: #{value['lat']}, lng: #{value['lng']})"
-      return data
-    else
-      return null
   getColor: ->
     if @polygon?
       color = @polygon.getColor()

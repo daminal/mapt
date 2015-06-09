@@ -11,9 +11,9 @@ class PolygonManager
   polygons: null,
   pen: null,
   events: null,
-  onNewPolygon: null,
+  onStartDraw: null,
   onCompletePolygon: null,
-  onCancelPolygon: null,
+  onCancelDraw: null,
   onPolygonChanged: null,
   onPolygonClicked: null,
 
@@ -23,45 +23,34 @@ class PolygonManager
     @map = map;
     @polygons = new Array
     @events = new Array
-    @onNewPolygon = options['onNewPolygon']
+    @onStartDraw = options['onStartDraw']
     @onCompletePolygon = options['onCompletePolygon']
-    @onCancelPolygon = options['onCancelPolygon']
+    @onCancelDraw = options['onCancelDraw']
     @onPolygonChanged = options['onPolygonChanged']
     @onPolygonClicked = options['onPolygonClicked']
 
     # Add google maps event listeners
     _this = @
     @events.push google.maps.event.addDomListener @map, 'click', (event) ->
-      _this.mapClicked(event)
+      _this._mapClicked(event)
     @events.push google.maps.event.addDomListener window, 'keyup', (event) ->
       code = if event.keyCode then event.keyCode else event.which
       switch code
         when 27
-          _this.destroyPen()
+          _this.cancelDraw()
 
   newPen: ->
-    @pen = new G.Pen(@map, @, @polygonCreated)
-    @onNewPolygon(@pen) if @onNewPolygon?
+    @pen = new G.Pen(@map, @)
+    @onStartDraw(@pen) if @onStartDraw?
 
   setPen: (pen) ->
     @pen = pen
 
-  destroyPen: ->
+  cancelDraw: ->
     if @pen?
       @pen.clear()
       @pen = null
-    @onCancelPolygon() if @onCancelPolygon?
-
-  getData: ->
-    @pen.getData()
-
-  mapClicked: (event) ->
-    @pen.draw event.latLng if @pen?
-
-  polygonCreated: (polygon, manager) ->
-    @pen = null
-    manager.polygons.push(polygon)
-    manager.onCompletePolygon polygon if manager.onCompletePolygon?
+    @onCancelDraw() if @onCancelDraw?
 
   destroy: ->
     for polygon in @polygons
@@ -69,5 +58,13 @@ class PolygonManager
 
     for event in @events
       google.maps.event.removeListener event
+
+  _mapClicked: (event) ->
+    @pen.draw event.latLng if @pen?
+
+  _polygonCreated: (polygon) ->
+    @pen = null
+    @polygons.push polygon
+    @onCompletePolygon polygon if @onCompletePolygon?
 
 G.PolygonManager = PolygonManager

@@ -39,8 +39,8 @@ class Info
 
     return content
 
-  show: (latLng) ->
-    @infoWidObj.setPosition(latLng)
+  show: (latLng=null) ->
+    @infoWidObj.setPosition(latLng) if latLng?
     @infoWidObj.open(@map)
 
   remove: ->

@@ -1,5 +1,14 @@
 PolygonManager = this.Mapt.Utils.GoogleMaps.PolygonManager
 
+### Note:
+    Given a polygon, you can get its data points like so:
+
+    data = polygon.getData()     # This returns an array of the data points which you can iterate through to get lat/lng
+    for point in data
+      lat = point.lat
+      lng = point.lng
+ ###
+
 class ZonesController
   init: ->
   index: ->
@@ -30,30 +39,28 @@ class ZonesController
 
   createPolygonManager = (map) ->
     options =
-      onNewPolygon: ->
+      onStartDraw: ->
+        console.log('Start Draw')
         disableAddZoneButton()
 
-      onCancelPolygon: ->
+      onCancelDraw: ->
+        console.log('Cancel Draw')
         enableAddZoneButton()
 
       onCompletePolygon: (polygon) ->
-        data = polygon.getData()
-        fieldContainer = $('#dataPanel')
-        for point in data
-          # latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
-          # latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
-          latField = $("<input type='text' name='zone[zone_coords_attributes][][lat]' value='#{point.lat}'>")
-          lngField = $("<input type='text' name='zone[zone_coords_attributes][][lng]' value='#{point.lng}'>")
-          fieldContainer.append(latField)
-          fieldContainer.append(lngField)
-
+        console.log('Polygon Created')
+        console.log(polygon)
         enableAddZoneButton()
+
       onPolygonChanged: (polygon, type) ->
         console.log(polygon)
         console.log(type)
-      onPolygonClicked: (polygon) ->
+
+      onPolygonClicked: (polygon, rightClick) ->
         console.log('Polygon clicked')
         console.log(polygon)
+        if rightClick
+          polygon.info.show()
 
     return new PolygonManager map, options
 

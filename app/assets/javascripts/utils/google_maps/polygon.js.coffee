@@ -51,19 +51,28 @@ class Polygon
     @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
       _this.isDragging = false
       _this.manager.onPolygonChanged(_this, 'drag') if _this.manager.onPolygonChanged?
-    @events.push google.maps.event.addDomListener @polygonObj, 'mouseup', (event) ->
+    @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
       unless _this.isDragging
-        _this.manager.onPolygonClicked(_this) if _this.manager.onPolygonClicked?
+        _this.manager.onPolygonClicked(_this, false) if _this.manager.onPolygonClicked?
+
 
     @info = new G.Info(this, @map)
 
     @addListener()
 
   addListener: ->
-    info = @info
-    thisPolygon = @polygonObj
-    google.maps.event.addListener thisPolygon, 'rightclick', (event) ->
-      info.show event.latLng
+    _this = @
+    path = @polygonObj.getPath()
+
+    @events.push google.maps.event.addListener @polygonObj, 'rightclick', (event) ->
+      if event.vertex?
+        if path.length == 2
+          _this.remove()
+        else
+          path.removeAt(event.vertex)
+      else
+        _this.manager.onPolygonClicked(_this, true) if _this.manager.onPolygonClicked?
+
 
   remove: ->
     @info.remove()

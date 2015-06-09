@@ -8,20 +8,18 @@ class Pen
   polyline: null,
   polygon: null,
   currentDot: null,
-  parent: null,
-  onCompletePolygon: null,
+  manager: null,
 
-  constructor: (map, manager, onCompletePolygon) ->
+  constructor: (map, manager) ->
     @map = map
-    @parent = manager
-    @onCompletePolygon = onCompletePolygon
+    @manager = manager
     @listOfDots = new Array
 
   draw: (latLng) ->
     unless @polygon?
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
-        @onCompletePolygon(@polygon, @parent) if @onCompletePolygon?
+        @manager._polygonCreated(@polygon)
       else
         if @polyline?
           @polyline.remove()
@@ -33,7 +31,7 @@ class Pen
 
   drawPolygon: (listOfDots, color, des, id) ->
     _this = this
-    @polygon = new G.Polygon listOfDots, @map, @parent, color
+    @polygon = new G.Polygon listOfDots, @map, @manager, color
     @clear()
   clear: ->
     $.each @listOfDots, (index, value) ->

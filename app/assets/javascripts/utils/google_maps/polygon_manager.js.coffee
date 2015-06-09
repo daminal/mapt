@@ -6,6 +6,7 @@ G = this.Mapt.Utils.GoogleMaps
 # setPolygons(polygons)
 # addPolygon(polygon)
 # addPolygons(polygons)
+# removePolygon(polygon)
 
 
 class PolygonManager
@@ -62,14 +63,15 @@ class PolygonManager
       polygon.deselect()
     @onDeselectAll() if @onDeselectAll? and runCallback
 
-  destroy: ->
+  reset: ->
     for polygon in @polygons
       polygon.remove() if polygon?
+    @_resetCursor()
 
+  destroy: ->
+    @reset()
     for event in @events
       google.maps.event.removeListener event
-
-    @_resetCursor()
 
   _mapClicked: (event) ->
     @pen.draw event.latLng if @pen?

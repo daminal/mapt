@@ -24,9 +24,7 @@ class ZonesController
       $(this).attr('disabled','disabled')
 
     $('#reset').click ->
-      manager.destroy()
-      manager = null
-      manager = createPolygonManager map
+      manager.reset()
       $('#addZone').removeAttr('disabled')
 
     $('#showData').click ->

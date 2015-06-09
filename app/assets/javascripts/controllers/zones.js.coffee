@@ -31,7 +31,10 @@ class ZonesController
   createPolygonManager = (map) ->
     options =
       onNewPolygon: (pen) ->
-        $('#addZone').attr('disabled','disabled')
+        disableAddZoneButton()
+
+      onCancelPolygon: (pen) ->
+        enableAddZoneButton()
 
       onCompletePolygon: (data) ->
         fieldContainer = $('#dataPanel')
@@ -43,8 +46,14 @@ class ZonesController
           fieldContainer.append(latField)
           fieldContainer.append(lngField)
 
-        $('#addZone').removeAttr('disabled')
+        enableAddZoneButton()
 
     return new PolygonManager map, options
+
+  enableAddZoneButton = ->
+    $('#addZone').removeAttr('disabled')
+
+  disableAddZoneButton = ->
+    $('#addZone').attr('disabled','disabled')
 
 this.Mapt.zones= new ZonesController

@@ -49,8 +49,11 @@ class ZonesController
 
         enableAddZoneButton()
       onPolygonChanged: (polygon, type) ->
-        console.log(polygon);
-        console.log(type);
+        console.log(polygon)
+        console.log(type)
+      onPolygonClicked: (polygon) ->
+        console.log('Polygon clicked')
+        console.log(polygon)
 
     return new PolygonManager map, options
 

@@ -51,6 +51,9 @@ class Polygon
     @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
       _this.isDragging = false
       _this.manager.onPolygonChanged(_this, 'drag') if _this.manager.onPolygonChanged?
+    @events.push google.maps.event.addDomListener @polygonObj, 'mouseup', (event) ->
+      unless _this.isDragging
+        _this.manager.onPolygonClicked(_this) if _this.manager.onPolygonClicked?
 
     @info = new G.Info(this, @map)
 

@@ -15,6 +15,7 @@ class PolygonManager
   onCompletePolygon: null,
   onCancelPolygon: null,
   onPolygonChanged: null,
+  onPolygonClicked: null,
 
   constructor: (map, options={}) ->
     throw "You must pass a google map object as the first argument" unless map?
@@ -26,6 +27,7 @@ class PolygonManager
     @onCompletePolygon = options['onCompletePolygon']
     @onCancelPolygon = options['onCancelPolygon']
     @onPolygonChanged = options['onPolygonChanged']
+    @onPolygonClicked = options['onPolygonClicked']
 
     # Add google maps event listeners
     _this = @

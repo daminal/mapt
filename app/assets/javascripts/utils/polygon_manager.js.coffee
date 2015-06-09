@@ -13,7 +13,7 @@ class PolygonManager
     @onNewPolygon = options['onNewPolygon']
     @onCompletePolygon = options['onCompletePolygon']
 
-    _this = this
+    _this = @
     @event = google.maps.event.addListener @map, 'click', (event) ->
       _this.mapClicked(event)
 
@@ -23,12 +23,10 @@ class PolygonManager
   mapClicked: (event) ->
     return unless @pen?
     
-    @pen.draw event.latLng, @polygonCreated
+    @pen.draw event.latLng
 
   newPen: ->
-    @pens ?= new Array
-    @pens.push new Pen(@map, this)
-    @pen = @pens[@pens.length-1]
+    @pen = new Pen(@map, @, @polygonCreated)
     @onNewPolygon() if @onNewPolygon?
 
   setPen: (pen) ->
@@ -54,17 +52,19 @@ class Pen
   polygon: null,
   currentDot: null,
   parent: null,
+  onCompletePolygon: null,
 
-  constructor: (map, manager) ->
+  constructor: (map, manager, onCompletePolygon) ->
     @map = map
-    @listOfDots = new Array
     @parent = manager
+    @onCompletePolygon = onCompletePolygon
+    @listOfDots = new Array
 
-  draw: (latLng, onCompletePolygon) ->
+  draw: (latLng) ->
     unless @polygon?
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
-        onCompletePolygon(@getData(), @parent) if onCompletePolygon?
+        @onCompletePolygon(@getData(), @parent) if @onCompletePolygon?
       else
         if @polyline?
           @polyline.remove()
@@ -134,11 +134,10 @@ class Dot
     thisPen = @parent
     thisMarker = @markerObj
     thisDot = this
-    onCompletePolygon = thisPen.parent.polygonCreated
 
     google.maps.event.addListener thisMarker, 'click', ->
       thisPen.setCurrentDot thisDot
-      thisPen.draw thisMarker.getPosition(), onCompletePolygon
+      thisPen.draw thisMarker.getPosition()
 
   getLatLng: ->
     return @latLng

@@ -9,12 +9,32 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
-    creator = new PolygonCreator map, polygonCreated
+    polygonCreatorOptions =
+      onNewPolygon: ->
+        $('#addZone').attr('disabled','disabled')
 
+      onCompletePolygon: (data) ->
+        fieldContainer = $('#dataPanel')
+        for point in data
+          # latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
+          # latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
+          latField = $("<input type='text' name='zone[zone_coords_attributes][][lat]' value='#{point.lat}'>")
+          lngField = $("<input type='text' name='zone[zone_coords_attributes][][lng]' value='#{point.lng}'>")
+          fieldContainer.append(latField)
+          fieldContainer.append(lngField)
+
+        $('#addZone').removeAttr('disabled')
+
+    creator = new PolygonCreator map, polygonCreatorOptions
+
+    $('#addZone').click ->
+      creator.newPen()
+      $(this).attr('disabled','disabled')
     $('#reset').click ->
       creator.destroy()
       creator = null
-      creator = new PolygonCreator map, polygonCreated
+      creator = new PolygonCreator map, polygonCreatorOptions
+      $('#addZone').removeAttr('disabled')
 
     $('#showData').click ->
       $('#dataPanel').empty()
@@ -22,16 +42,5 @@ class ZonesController
         $('#dataPanel').append 'Please first create a polygon'
       else
         $('#dataPanel').append creator.showData()
-
-  polygonCreated = (data) ->
-    fieldContainer = $('#dataPanel')
-    data.forEach (value, index) ->
-#      latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
-#      latField = $("<input type='hidden' name='zone[zone_coords_attributes][lat]' value='#{value.lat}'>")
-      latField = $("<input type='text' name='zone[zone_coords_attributes][][lat]' value='#{value.lat}'>")
-      lngField = $("<input type='text' name='zone[zone_coords_attributes][][lng]' value='#{value.lng}'>")
-      fieldContainer.append(latField)
-      fieldContainer.append(lngField)
-
 
 this.Mapt.zones= new ZonesController

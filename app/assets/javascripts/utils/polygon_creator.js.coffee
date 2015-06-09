@@ -3,41 +3,46 @@ class PolygonCreator
   pens: null,
   pen: null,
   event: null,
-  callback: ->
+  onNewPolygon: null,
+  onCompletePolygon: null,
 
-  constructor: (map, callback) ->
+  constructor: (map, options={}) ->
+    throw "You must pass a google map object as the first argument" unless map?
+
     @map = map;
-    @pens = new Array
-    @newPen()
-    @callback = callback
+    @onNewPolygon = options['onNewPolygon']
+    @onCompletePolygon = options['onCompletePolygon']
 
-    thisPen = @pen
     _this = this
     @event = google.maps.event.addListener @map, 'click', (event) ->
       _this.mapClicked(event)
 
-  showData: ->
-    @pen.getDataAsString()
-
   getData: ->
     @pen.getData()
 
-  destroy: ->
-    @pen.deleteMis()
-    @pen.polygon.remove() if @pen.polygon?
-    google.maps.event.removeListener(@event)
-
   mapClicked: (event) ->
-    @pen.draw(event.latLng, @polygonCreated)
+    return unless @pen?
+    
+    @pen.draw event.latLng, @polygonCreated
 
   newPen: ->
+    @pens ?= new Array
     @pens.push new Pen(@map, this)
     @pen = @pens[@pens.length-1]
-    i = 0
+    @onNewPolygon() if @onNewPolygon?
+
+  setPen: (pen) ->
+    @pen = pen
 
   polygonCreated: (data, creator) ->
-    creator.newPen()
-    creator.callback(data)
+    @pen = null
+    creator.onCompletePolygon data
+
+  destroy: ->
+    @pens.forEach (value, index) ->
+      value.clear()
+      value.polygon.remove() if value.polygon?
+    google.maps.event.removeListener(@event)
 
 
 this.Mapt.Utils.PolygonCreator = PolygonCreator
@@ -55,13 +60,11 @@ class Pen
     @listOfDots = new Array
     @parent = creator
 
-  draw: (latLng, callback) ->
-    if @polygon?
-      alert('Click Reset to draw another')
-    else
+  draw: (latLng, onCompletePolygon) ->
+    unless @polygon?
       if @currentDot? and @listOfDots.length > 1 and @currentDot == @listOfDots[0]
         @drawPolygon(this.listOfDots)
-        callback(@getData(), @parent)
+        onCompletePolygon(@getData(), @parent) if onCompletePolygon?
       else
         if @polyline?
           @polyline.remove()
@@ -72,8 +75,8 @@ class Pen
 
   drawPolygon: (listOfDots, color, des, id) ->
     @polygon = new Polygon(listOfDots, @map, this, color, des, id)
-    @deleteMis()
-  deleteMis: ->
+    @clear()
+  clear: ->
     $.each @listOfDots, (index, value) ->
       value.remove()
     @listOfDots.length = 0
@@ -84,7 +87,7 @@ class Pen
     if @polygon?
       @polygon.remove()
     @polygon = null
-    @deleteMis()
+    @clear()
   setCurrentDot: (dot) ->
     @currentDot = dot
   getListOfDots: ->
@@ -129,13 +132,13 @@ class Dot
 
   addListener: ->
     thisPen = @parent
-    thisMarket = @markerObj
+    thisMarker = @markerObj
     thisDot = this
-    callback = thisPen.parent.polygonCreated
+    onCompletePolygon = thisPen.parent.polygonCreated
 
-    google.maps.event.addListener thisMarket, 'click', ->
+    google.maps.event.addListener thisMarker, 'click', ->
       thisPen.setCurrentDot thisDot
-      thisPen.draw thisMarket.getPosition(), callback
+      thisPen.draw thisMarker.getPosition(), onCompletePolygon
 
   getLatLng: ->
     return @latLng

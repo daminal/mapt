@@ -5,7 +5,7 @@ class PolygonManager
   map: null,
   polygons: null,
   pen: null,
-  event: null,
+  events: null,
   onNewPolygon: null,
   onCompletePolygon: null,
 
@@ -18,8 +18,9 @@ class PolygonManager
     @onCompletePolygon = options['onCompletePolygon']
 
     _this = @
-    @event = google.maps.event.addListener @map, 'click', (event) ->
+    event = google.maps.event.addListener @map, 'click', (event) ->
       _this.mapClicked(event)
+    @events.push(event)
 
   newPen: ->
     @pen = new G.Pen(@map, @, @polygonCreated)
@@ -42,6 +43,8 @@ class PolygonManager
   destroy: ->
     for polygon in @polygons
       polygon.remove() if polygon?
-    google.maps.event.removeListener(@event)
+
+    for event in @events
+      google.maps.event.removeListener(event)
 
 G.PolygonManager = PolygonManager

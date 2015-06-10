@@ -36,13 +36,13 @@ class ZonesController
 
     manager = createPolygonManager map, initialPolygons
 
-    colors = ['#000','#f00','#0f0','#00f','#ff0','#f0f','#00f','#fff']
-
     $('#addZone').click ->
-      # select random colors for the drawing lines and completed polygon
-      drawColor = colors[Math.floor(Math.random() * colors.length)]
-      polygonColor = colors[Math.floor(Math.random() * colors.length)]
+      drawColor = '#0f0'
+      polygonColor = '#00f'
 
+      # drawColor and polygonColor are optional.  By default, they will be black for the drawColor (the color of the line
+      # while the user is drawing a new polygon and red for the polygonColor (the color used for the outline and fill
+      # of the polygons once fully drawn on the map
       manager.startDraw(drawColor, polygonColor)
       $(this).attr('disabled','disabled')
 
@@ -101,26 +101,26 @@ class ZonesController
 
       onFinishDraw: (polygon) ->
         enableAddZoneButton()
-        console.log(polygon)
+        console.log(polygon.getData())
         console.log('Polygon Created')
         # You can hook in here to make a call to the server to save the new zone in the database
         # Or display a notice that they've made a new zone and can click a button to save if you don't want it to
         # autosave
 
       onPolygonChanged: (polygon, type) ->
-        console.log(polygon)
+        console.log(polygon.getData())
         console.log("Polygon Changed (#{type})")
         # You can hook in here to make a call to the server to update the zone in the database
         # Or use it to display a notice that changes have been made, 'click here' to save if you don't want it to
         # autosave
 
       onPolygonSelected: (polygon) ->
-        console.log(polygon)
+        console.log(polygon.getData())
         console.log('Polygon selected')
         # You can hook in here to display a form for editing or deleting this polygon
 
       onPolygonDeselected: (polygon) ->
-        console.log(polygon)
+        console.log(polygon.getData())
         console.log('Polygon deselected')
 
       onDeselectAll: ->

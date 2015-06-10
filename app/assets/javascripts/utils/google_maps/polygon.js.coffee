@@ -96,9 +96,6 @@ class Polygon
   getPlots: ->
     @polygonObj.getPaths()
 
-  getColor: ->
-    @getPolygonObj().fillColor
-
   setColor: (color) ->
     @getPolygonObj().setOptions
       fillColor: color

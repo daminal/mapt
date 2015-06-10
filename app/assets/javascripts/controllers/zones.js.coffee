@@ -36,20 +36,19 @@ class ZonesController
 
     manager = createPolygonManager map, initialPolygons
 
+    colors = ['#000','#f00','#0f0','#00f','#ff0','#f0f','#00f','#fff']
+
     $('#addZone').click ->
-      manager.startDraw()
+      # select random colors for the drawing lines and completed polygon
+      drawColor = colors[Math.floor(Math.random() * colors.length)]
+      polygonColor = colors[Math.floor(Math.random() * colors.length)]
+
+      manager.startDraw(drawColor, polygonColor)
       $(this).attr('disabled','disabled')
 
     $('#reset').click ->
       manager.reset()
       $('#addZone').removeAttr('disabled')
-
-    $('#showData').click ->
-      $('#dataPanel').empty()
-      if null == manager.showData()
-        $('#dataPanel').append 'Please first create a polygon'
-      else
-        $('#dataPanel').append manager.showData()
 
   createPolygonManager = (map, initialPolygons) ->
     ####

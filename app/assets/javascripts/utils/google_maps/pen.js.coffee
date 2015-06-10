@@ -10,11 +10,15 @@ class Pen
   currentDot: null,
   manager: null,
   events: null,
-  isDrawing: false
+  isDrawing: false,
+  color: null,
+  polygonColor: null,
 
-  constructor: (map, manager) ->
+  constructor: (map, manager, color='#000', polygonColor='#f00') ->
     @map = map
     @manager = manager
+    @color = color
+    @polygonColor = polygonColor
     @listOfDots = new Array
 
     @addListeners()
@@ -45,11 +49,11 @@ class Pen
         @listOfDots.push(dot)
         if @listOfDots.length > 1
           _this = this
-          @polyline = new G.Line @listOfDots, @map
+          @polyline = new G.Line @listOfDots, @map, @color
 
-  drawPolygon: (listOfDots, editable, color) ->
+  drawPolygon: (listOfDots, editable) ->
     _this = this
-    @polygon = new G.Polygon listOfDots, @manager, @map, editable, color
+    @polygon = new G.Polygon listOfDots, @manager, @map, editable, @polygonColor
     @manager._polygonCreated(@polygon)
     @clear()
 
@@ -77,10 +81,5 @@ class Pen
   getListOfDots: ->
     @listOfDots
 
-  getColor: ->
-    if @polygon?
-      color = @polygon.getColor()
-    else
-      return null
 
 G.Pen = Pen

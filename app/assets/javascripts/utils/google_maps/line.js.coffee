@@ -5,11 +5,13 @@ class Line
   listOfDots: null,
   map: null,
   coords: null,
-  polylineObj: null
+  polylineObj: null,
+  color: null,
 
-  constructor: (listOfDots, map) ->
+  constructor: (listOfDots, map, color) ->
     @listOfDots = listOfDots
     @map = map
+    @color = color
     @coords = new Array
 
     if @listOfDots.length > 1
@@ -18,10 +20,15 @@ class Line
         _this.coords.push value.getLatLng()
       @polylineObj = new google.maps.Polyline
         path: @coords
-        strokeColor: '#FF0000'
+        strokeColor: @color
         strokeOpacity: 1.0
         strokeWeight: 2
         map: @map
+
+  setColor: (color) ->
+    @color = color
+    @polylineObj.setOptions
+      strokeColor: @color
 
   remove: ->
     @polylineObj.setMap(null)

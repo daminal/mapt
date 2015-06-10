@@ -3,7 +3,6 @@ G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
 # removePolygon(polygon)
-# better color management
 # info window management????
 
 
@@ -44,9 +43,9 @@ class PolygonManager
       unless _this.pen?
         _this.deselectAll()
 
-  startDraw: ->
+  startDraw: (color=null, polygonColor=null) ->
     @deselectAll()
-    @pen = new G.Pen(@map, @)
+    @pen = new G.Pen(@map, @, color, polygonColor)
     @map.setOptions({draggableCursor:'pointer'});
 
     @onStartDraw(@pen) if @onStartDraw?

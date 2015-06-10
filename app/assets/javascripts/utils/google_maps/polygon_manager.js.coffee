@@ -10,6 +10,8 @@ class PolygonManager
   polygons: null,
   selectedPolygon: null,
   events: null,
+  drawColor: null,
+  newPolygonColor: null,
   onStartDraw: null,
   onFinishDraw: null,
   onCancelDraw: null,
@@ -26,6 +28,8 @@ class PolygonManager
     @map = map;
     @polygons = new Array
     @events = new Array
+    @drawColor = options['drawColor'] if options['drawColor']?
+    @newPolygonColor = options['newPolygonColor'] if options['newPolygonColor']?
     @onStartDraw = options['onStartDraw']
     @onFinishDraw = options['onFinishDraw']
     @onCancelDraw = options['onCancelDraw']
@@ -44,9 +48,9 @@ class PolygonManager
       unless _this.pen?
         _this.deselectAll()
 
-  startDraw: (color=null, polygonColor=null) ->
+  startDraw: (color=null, newPolygonColor=null) ->
     @deselectAll()
-    @pen = new G.Pen(@map, @, color, polygonColor)
+    @pen = new G.Pen(@map, @, color || @drawColor, newPolygonColor || @newPolygonColor)
     @map.setOptions({draggableCursor:'pointer'});
 
     @onStartDraw(@pen) if @onStartDraw?

@@ -37,13 +37,7 @@ class ZonesController
     manager = createPolygonManager map, initialPolygons
 
     $('#addZone').click ->
-      drawColor = '#0f0'
-      polygonColor = '#00f'
-
-      # drawColor and polygonColor are optional.  By default, they will be black for the drawColor (the color of the line
-      # while the user is drawing a new polygon and red for the polygonColor (the color used for the outline and fill
-      # of the polygons once fully drawn on the map
-      manager.startDraw(drawColor, polygonColor)
+      manager.startDraw()
       $(this).attr('disabled','disabled')
 
     $('#removeZone').click ->
@@ -94,6 +88,8 @@ class ZonesController
 
     return new PolygonManager map,
       polygons: initialPolygons
+      drawColor: '#0f0'
+      newPolygonColor: '#000'
       onStartDraw: ->
         enableButton('#addZone')
         console.log('Start Draw')
@@ -142,6 +138,7 @@ class ZonesController
           console.log('Polygon left clicked')
 
       onPolygonRemoved: (polygon) ->
+        disableButton('#removeZone')
         console.log(polygon)
         console.log('Polygon removed')
 

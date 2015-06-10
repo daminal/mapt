@@ -46,6 +46,9 @@ class ZonesController
       manager.startDraw(drawColor, polygonColor)
       $(this).attr('disabled','disabled')
 
+    $('#removeZone').click ->
+      manager.removePolygon(manager.selectedPolygon)
+
     $('#reset').click ->
       manager.reset()
       $('#addZone').removeAttr('disabled')
@@ -92,15 +95,15 @@ class ZonesController
     return new PolygonManager map,
       polygons: initialPolygons
       onStartDraw: ->
-        disableAddZoneButton()
+        enableButton('#addZone')
         console.log('Start Draw')
 
       onCancelDraw: ->
-        enableAddZoneButton()
+        enableButton('#addZone')
         console.log('Cancel Draw')
 
       onFinishDraw: (polygon) ->
-        enableAddZoneButton()
+        enableButton('#addZone')
         console.log(polygon.getData())
         console.log('Polygon Created')
         # You can hook in here to make a call to the server to save the new zone in the database
@@ -115,11 +118,13 @@ class ZonesController
         # autosave
 
       onPolygonSelected: (polygon) ->
+        enableButton('#removeZone')
         console.log(polygon.getData())
         console.log('Polygon selected')
         # You can hook in here to display a form for editing or deleting this polygon
 
       onPolygonDeselected: (polygon) ->
+        disableButton('#removeZone')
         console.log(polygon.getData())
         console.log('Polygon deselected')
 
@@ -136,10 +141,14 @@ class ZonesController
         else
           console.log('Polygon left clicked')
 
-  enableAddZoneButton = ->
-    $('#addZone').removeAttr('disabled')
+      onPolygonRemoved: (polygon) ->
+        console.log(polygon)
+        console.log('Polygon removed')
 
-  disableAddZoneButton = ->
-    $('#addZone').attr('disabled','disabled')
+  enableButton = (selector) ->
+    $(selector).removeAttr('disabled')
+
+  disableButton = (selector) ->
+    $(selector).attr('disabled','disabled')
 
 this.Mapt.zones= new ZonesController

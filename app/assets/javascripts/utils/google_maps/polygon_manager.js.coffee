@@ -3,13 +3,12 @@ G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
 # removePolygon(polygon)
-# info window management????
-
 
 class PolygonManager
   map: null,
-  polygons: null,
   pen: null,
+  polygons: null,
+  selectedPolygon: null,
   events: null,
   onStartDraw: null,
   onFinishDraw: null,
@@ -18,6 +17,7 @@ class PolygonManager
   onPolygonClicked: null,
   onPolygonSelected: null,
   onPolygonDesected: null,
+  onPolygonRemoved: null,
   onDeselectAll: null,
 
   constructor: (map, options={}) ->
@@ -33,6 +33,7 @@ class PolygonManager
     @onPolygonClicked = options['onPolygonClicked']
     @onPolygonSelected = options['onPolygonSelected']
     @onPolygonDeselected = options['onPolygonDeselected']
+    @onPolygonRemoved = options['onPolygonRemoved']
     @onDeselectAll = options['onDeselectAll']
 
     @addPolygons(options['polygons']) if options['polygons']?
@@ -75,9 +76,18 @@ class PolygonManager
     for polygon in polygons
       @addPolygon(polygon)
 
+  removePolygon: (polygon) ->
+    polygon.remove()
+    i = @polygons.indexOf(polygon)
+    if i != -1
+      @polygons.splice(i, 1)
+    @onPolygonRemoved(polygon) if @onPolygonRemoved?
+
   reset: ->
     for polygon in @polygons
-      polygon.remove() if polygon?
+      if polygon?
+        polygon.remove()
+    @polygons = []
     @_resetCursor()
 
   destroy: ->

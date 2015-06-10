@@ -54,6 +54,7 @@ class Polygon
         else
           _this.manager.deselectAll(false)
           _this.setEditable true
+          _this.manager.selectedPolygon = _this
           _this.manager.onPolygonSelected(_this) if _this.manager.onPolygonSelected?
 
     @events.push google.maps.event.addListener path, 'insert_at', (event) ->
@@ -107,6 +108,7 @@ class Polygon
     @getPolygonObj().setMap(@map)
 
   deselect: ->
+    @selectedPolygon = null
     if @isEditable()
       @setEditable(false)
       @manager.onPolygonDeselected(@) if @manager.onPolygonDeselected?

@@ -2,8 +2,8 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
-# select multiple
-# allow passing polygon(s) or json to addPolygon/addPolygons methods and polygons option
+# Allow passing polygon(s) or js objects to addPolygon/addPolygons methods and polygons option
+# Clean up public vs private APIs
 
 class PolygonManager
   map: null,

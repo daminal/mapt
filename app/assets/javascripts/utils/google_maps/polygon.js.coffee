@@ -19,6 +19,7 @@ class Polygon
     @coords = new Array
     @events = new Array
     @callbackContext = options['callbackContext'] || @
+    @id = options['id']
     @callbacks =
       polygon_changed:    options['onPolygonChanged']
       polygon_clicked:    options['onPolygonClicked']

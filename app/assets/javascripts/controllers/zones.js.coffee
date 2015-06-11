@@ -31,7 +31,7 @@ class ZonesController
       new google.maps.LatLng(40.525592, -80.22322)
     ]
     initialPolygons = [
-      new Polygon(coords)
+      new Polygon(coords, id: '123')
     ]
 
     manager = createPolygonManager map, initialPolygons
@@ -110,7 +110,7 @@ class ZonesController
       drawColor: '#0f0'
       newPolygonColor: '#000'
       selectMultiple: true
-      onReady: ->
+      onReady: (manager) ->
         console.log('PolygonManager is ready')
 
       onStartDraw: ->

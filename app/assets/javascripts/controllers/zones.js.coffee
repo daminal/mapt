@@ -96,9 +96,6 @@ class ZonesController
                                                    # another polygon or clicking the map outside of all polygons
          - polygon     (an instance of Polygon representing the polygon that was deselected)
 
-       onDeselectAll: function()                   # called when all polygons are deselected by clicking the map
-                                                   # outside of all polygons or by drawing a new polygon
-
        onPolygonClicked: function(polygon, latLng, rightClick)     # called when user clicks an already selected polygon
          - polygon     (an instance of Polygon representing the polygon that was clicked)
          - latLng      (a google maps latLng object containing the coordinates at which the user clicked
@@ -154,10 +151,6 @@ class ZonesController
         disableButton('#removeZone')
         console.log(polygon.getData())
         console.log('Polygon deselected')
-
-      onDeselectAll: ->
-        console.log('Deselect all')
-        # You can hook in here to hide the edit form
 
       onPolygonClicked: (polygon, latLng, rightClick) ->
         console.log(polygon)

@@ -108,7 +108,7 @@ class PolygonManager
     @addPolygons(polygons)
 
   addPolygon: (polygon_or_object, runCallback=true) ->
-    polygon = if typeof polygon_or_object is G.Polygon then polygon_or_object else @_objectToPolygon(polygon_or_object)
+    polygon = if polygon_or_object instanceof G.Polygon then polygon_or_object else @_objectToPolygon(polygon_or_object)
 
     if @trigger 'before_add_polygon', polygon
       polygon.setMap(@map)

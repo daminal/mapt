@@ -53,7 +53,7 @@ class Pen
 
   drawPolygon: (listOfDots, editable=false) ->
     _this = this
-    @polygon = new G.Polygon listOfDots, @manager, null, editable, @polygonColor
+    @polygon = new G.Polygon listOfDots, {editable: false, color: @polygonColor}
     @manager.finishDraw(@polygon)
     @clear()
 

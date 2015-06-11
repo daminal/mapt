@@ -2,22 +2,26 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 class Polygon
+  id: null,
   listOfDots: null,
   map: null,
   coords: null,
   manager: null,
   polygonObj: null,
   events: null,
-  isDragging: false
+  isDragging: false,
+  _defaultColor: '#f00',
 
-  constructor: (listOfDots, manager, map, editable=false, color='#FF0000') ->
+  constructor: (listOfDots, options={}) ->
     @listOfDots = listOfDots
-    @map = map
-    @manager = manager
+    @map = options['map']
+    @manager = options['manager']
     @coords = new Array
     @events = new Array
 
     _this = this
+    editable = options['editable']
+    color = options['color'] || @defaultColor
 
     $.each @listOfDots, (index, value) ->
       _this.addDot value
@@ -29,13 +33,13 @@ class Polygon
       strokeOpacity: 0.8
       strokeWeight: 2
       fillOpacity: 0.35
+      fillColor: color
+      strokeColor: color
       map: @map
 
-    @setColor(color)
+    @_addListeners()
 
-    @addListeners()
-
-  addListeners: ->
+  _addListeners: ->
     _this = @
     path = @polygonObj.getPath()
 
@@ -95,7 +99,7 @@ class Polygon
   getPlots: ->
     @polygonObj.getPaths()
 
-  setColor: (color) ->
+  setColor: (color='#f00') ->
     @getPolygonObj().setOptions
       fillColor: color
       strokeColor: color

@@ -2,8 +2,10 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
-# retrieveJsonFromUrl
-#
+# select multiple
+# select(polygon) method on PolygonManager
+# allow passing polygon(s) or json to addPolygon/addPolygons methods and polygons option
+# what about giving polygons ids?
 
 class PolygonManager
   map: null,

@@ -31,7 +31,11 @@ class ZonesController
       new google.maps.LatLng(40.525592, -80.22322)
     ]
     initialPolygons = [
-      new Polygon(coords, id: '123')
+      {
+        coords: coords,
+        id: 123,
+        color: '#00f'
+      }
     ]
 
     manager = createPolygonManager map, initialPolygons

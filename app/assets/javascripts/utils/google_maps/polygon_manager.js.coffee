@@ -2,7 +2,6 @@ this.Mapt.Utils.GoogleMaps ?= {}
 G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
-# Allow passing polygon(s) or js objects to addPolygon/addPolygons methods and polygons option
 # Clean up public vs private APIs
 
 class PolygonManager
@@ -108,7 +107,9 @@ class PolygonManager
     @reset()
     @addPolygons(polygons)
 
-  addPolygon: (polygon, runCallback=true) ->
+  addPolygon: (polygon_or_object, runCallback=true) ->
+    polygon = if typeof polygon_or_object is G.Polygon then polygon_or_object else @_objectToPolygon(polygon_or_object)
+
     if @trigger 'before_add_polygon', polygon
       polygon.setMap(@map)
       polygon.callbackContext = @
@@ -192,6 +193,9 @@ class PolygonManager
 
   _resetCursor: () ->
     @map.setOptions({draggableCursor:'url(http://maps.gstatic.com/mapfiles/openhand_8_8.cur) 8 8, default '});
+
+  _objectToPolygon: (obj) ->
+    new G.Polygon obj['coords'], {id: obj['id'], color: obj['color']}
 
   removeFromArray = (array, obj) ->
     i = array.indexOf(obj)

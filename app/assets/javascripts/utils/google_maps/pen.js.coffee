@@ -14,7 +14,7 @@ class Pen
   color: null,
   polygonColor: null,
 
-  constructor: (map, manager, color='#000', polygonColor='#f00') ->
+  constructor: (map, manager, color = '#000', polygonColor = '#f00') ->
     @map = map
     @manager = manager
     @color = color
@@ -39,8 +39,7 @@ class Pen
     unless @polygon?
       @isDrawing = true
       if @currentDot? and @listOfDots.length > 1 and @currentDot.latLng == @listOfDots[0].latLng
-        @drawPolygon(this.listOfDots, true)
-        @manager.onPolygonSelected(@polygon) if @manager.onPolygonSelected?
+        @drawPolygon(this.listOfDots)
         @isDrawing = false
       else
         if @polyline?
@@ -50,11 +49,12 @@ class Pen
         if @listOfDots.length > 1
           _this = this
           @polyline = new G.Line @listOfDots, @map, @color
+        @manager.trigger 'dot_added', dot
 
-  drawPolygon: (listOfDots, editable) ->
+  drawPolygon: (listOfDots, editable=false) ->
     _this = this
-    @polygon = new G.Polygon listOfDots, @manager, @map, editable, @polygonColor
-    @manager._polygonCreated(@polygon)
+    @polygon = new G.Polygon listOfDots, @manager, null, editable, @polygonColor
+    @manager.finishDraw(@polygon)
     @clear()
 
   clear: ->

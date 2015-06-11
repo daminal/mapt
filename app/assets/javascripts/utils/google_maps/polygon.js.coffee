@@ -41,33 +41,31 @@ class Polygon
 
     @events.push google.maps.event.addListener @polygonObj, 'dragstart', (event) ->
         _this.isDragging = true
-        _this.manager.onPolygonChanged(_this, 'remove') if _this.manager.onPolygonChanged?
+        _this.manager.trigger 'polygon_changed', _this, 'remove'
 
     @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
       _this.isDragging = false
-      _this.manager.onPolygonChanged(_this, 'drag') if _this.manager.onPolygonChanged?
+      _this.manager.trigger 'polygon_changed', _this, 'drag'
+
+    @events.push google.maps.event.addListener path, 'insert_at', (event) ->
+      unless _this.isDragging
+        _this.manager.trigger 'polygon_changed', _this, 'insert'
+
+    @events.push google.maps.event.addListener path, 'set_at', (event) ->
+      unless _this.isDragging
+        _this.manager.trigger 'polygon_changed', _this, 'move'
+
+    @events.push google.maps.event.addListener path, 'remove_at', (event) ->
+      unless _this.isDragging
+        _this.manager.trigger 'polygon_changed', _this, 'remove'
 
     @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
       unless _this.isDragging
         if _this.isEditable()
-          _this.manager.onPolygonClicked(_this, event.latLng, false) if _this.manager.onPolygonClicked?
+          _this.manager.trigger 'polygon_clicked', _this, event.latLng, false
         else
           _this.manager.deselectAll(false)
-          _this.setEditable true
-          _this.manager.selectedPolygon = _this
-          _this.manager.onPolygonSelected(_this) if _this.manager.onPolygonSelected?
-
-    @events.push google.maps.event.addListener path, 'insert_at', (event) ->
-      unless _this.isDragging
-        _this.manager.onPolygonChanged(_this, 'insert') if _this.manager.onPolygonChanged?
-
-    @events.push google.maps.event.addListener path, 'set_at', (event) ->
-      unless _this.isDragging
-        _this.manager.onPolygonChanged(_this, 'move') if _this.manager.onPolygonChanged?
-
-    @events.push google.maps.event.addListener path, 'remove_at', (event) ->
-      unless _this.isDragging
-        _this.manager.onPolygonChanged(_this, 'remove') if _this.manager.onPolygonChanged?
+          _this.select()
 
     @events.push google.maps.event.addListener @polygonObj, 'rightclick', (event) ->
       if event.vertex?
@@ -76,7 +74,7 @@ class Polygon
         else
           path.removeAt(event.vertex)
       else
-        _this.manager.onPolygonClicked(_this, event.latLng, true) if _this.manager.onPolygonClicked?
+        _this.manager.trigger 'polygon_clicked', _this, event.latLng, true
 
 
   remove: ->
@@ -107,11 +105,16 @@ class Polygon
     @map = map
     @getPolygonObj().setMap(@map)
 
+  select: ->
+    @manager.selectedPolygon = @
+    @setEditable(true)
+    @manager.trigger 'polygon_selected', @
+
   deselect: ->
-    @selectedPolygon = null
+    @manager.selectedPolygon = null
     if @isEditable()
       @setEditable(false)
-      @manager.onPolygonDeselected(@) if @manager.onPolygonDeselected?
+      @manager.trigger 'polygon_deselected', @
 
   setEditable: (editable) ->
     @getPolygonObj().setOptions

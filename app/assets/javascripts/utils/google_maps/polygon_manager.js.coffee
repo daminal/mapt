@@ -92,6 +92,10 @@ class PolygonManager
     for polygon in polygons
       @addPolygon(polygon)
 
+  getPolygonById: (id) ->
+    for polygon in polygon
+      return polygon if polygon.id == id
+
   removePolygon: (polygon) ->
     polygon.remove()
     i = @polygons.indexOf(polygon)

@@ -3,18 +3,18 @@ G = this.Mapt.Utils.GoogleMaps
 
 #### TODO
 # select multiple
-# select(polygon) method on PolygonManager
 # allow passing polygon(s) or json to addPolygon/addPolygons methods and polygons option
-# what about giving polygons ids?
 
 class PolygonManager
   map: null,
   pen: null,
   polygons: null,
-  selectedPolygon: null,
+  selectedPolygons: null,
+  selectMultiple: null,
   events: null,
   drawColor: null,
   newPolygonColor: null,
+  callbackContext: null,
   callbacks: null,
 
   constructor: (map, options={}) ->
@@ -22,9 +22,14 @@ class PolygonManager
 
     @map = map;
     @polygons = new Array
+    @selectedPolygons = new Array
     @events = new Array
     @drawColor = options['drawColor'] if options['drawColor']?
-    @newPolygonColor = options['newPolygonColor'] if options['newPolygonColor']?
+    @newPolygonColor = options['newPolygonColor'] || '#f00'
+    @selectMultiple = options['selectMultiple'] || false
+
+
+    @callbackContext = options['callbackContext'] || @
 
     # Define callbacks
     @callbacks =
@@ -32,14 +37,14 @@ class PolygonManager
       start_draw:         options['onStartDraw']
       finish_draw:        options['onFinishDraw']
       cancel_draw:        options['onCancelDraw']
-      dot_added:          options['onDrawPoint']
+      dot_added:          options['onDotAdded']
+      before_add_polygon: options['beforeAddPolygon']
       polygon_added:      options['onPolygonAdded']
       polygon_changed:    options['onPolygonChanged']
       polygon_clicked:    options['onPolygonClicked']
       polygon_selected:   options['onPolygonSelected']
       polygon_deselected: options['onPolygonDeselected']
       polygon_removed:    options['onPolygonRemoved']
-      deselect_all:       options['onDeselectAll']
 
     @addPolygons(options['polygons']) if options['polygons']?
 
@@ -51,57 +56,109 @@ class PolygonManager
 
     @trigger 'ready', @
 
-  startDraw: (color=null, newPolygonColor=null) ->
+  enableDraw: (color=null, newPolygonColor=null) ->
     @deselectAll()
-    @pen = new G.Pen(@map, @, color || @drawColor, newPolygonColor || @newPolygonColor)
+    @pen = new G.Pen @map,
+      color: color || @drawColor,
+      callbackContext: @,
+      onStartDraw: @callbacks['start_draw']
+      onFinishDraw: @_finishDraw
+      onCancelDraw: @_cancelDraw
+      onDotAdded: @callbacks['dot_added']
+
     @map.setOptions({draggableCursor:'pointer'});
 
-    @trigger 'start_draw', @pen
+    @trigger 'enable_draw', @pen
 
-  cancelDraw: ->
+  _cancelDraw: (pen) ->
     if @pen?
-      @pen.cancel()
+      @pen.remove()
       @pen = null
     @_resetCursor()
     @trigger 'cancel_draw'
 
-  finishDraw: (polygon) ->
+  _finishDraw: (pen) ->
     @_resetCursor()
-    @pen = null
-    add_polygon = @trigger 'finish_draw', polygon
-    if add_polygon
-      @addPolygon(polygon)
-      @trigger 'polygon_added', polygon
-      polygon.select()
+    polygon = new G.Polygon @pen.listOfDots,
+      color: @newPolygonColor
 
-  deselectAll: (runCallback=true) ->
-    for polygon in @polygons
-      polygon.deselect()
-    @trigger 'deselect_all' if runCallback
+    @addPolygon polygon
+    @selectPolygon(polygon)
+    @pen.remove()
+    @pen = null
+
+  _polygonClicked: (polygon, event, right_click) ->
+    if polygon.isEditable() || right_click
+      @trigger 'polygon_clicked', polygon, event.latLng, right_click
+    else
+      selectMultiple = @selectMultiple && event.eb.metaKey
+      @selectPolygon(polygon, !selectMultiple)
+
+  deselectPolygon: (polygon) ->
+    polygon.deselect()
+    removeFromArray(@selectedPolygons, polygon)
+
+  deselectAll: ->
+    polygons = @selectedPolygons.slice(0)
+
+    for polygon in polygons
+      @deselectPolygon(polygon)
 
   setPolygons: (polygons) ->
     @reset()
     @addPolygons(polygons)
 
-  addPolygon: (polygon) ->
-    polygon.setMap(@map)
-    polygon.manager = @
-    @polygons.push(polygon)
+  addPolygon: (polygon, runCallback=true) ->
+    if @trigger 'before_add_polygon', polygon
+      polygon.setMap(@map)
+      polygon.callbackContext = @
+      polygon.on 'polygon_changed', @callbacks['polygon_changed']
+      polygon.on 'polygon_clicked', @_polygonClicked
+      polygon.on 'polygon_selected', @callbacks['polygon_selected']
+      polygon.on 'polygon_deselected', @callbacks['polygon_deselected']
+      polygon.on 'polygon_removed', @callbacks['polygon_removed']
+      @polygons.push(polygon)
+      @trigger 'polygon_added', polygon if runCallback
+      return polygon
 
   addPolygons: (polygons) ->
     for polygon in polygons
-      @addPolygon(polygon)
+      @addPolygon(polygon, false)
 
   getPolygonById: (id) ->
-    for polygon in polygon
+    for polygon in @polygons
       return polygon if polygon.id == id
 
+  selectPolygon: (polygon, deselectOthers=true) ->
+    @deselectAll() if deselectOthers
+    polygon.select()
+    @selectedPolygons.push(polygon)
+    polygon
+
+  selectPolygons: (polygons) ->
+    return unless @selectMultiple
+    @deselectAll()
+    for polygon in polygons
+      @selectPolygon(polygon, false)
+    @trigger 'polygons_selected', polygons
+    polygons
+
+  getSelectedPolygon: ->
+    @selectedPolygons[0]
+
+  getSelectedPolygons: ->
+    @selectedPolygons
+
   removePolygon: (polygon) ->
+    @deselectPolygon(polygon)
     polygon.remove()
-    i = @polygons.indexOf(polygon)
-    if i != -1
-      @polygons.splice(i, 1)
-    @trigger 'polygon_removed', polygon
+    removeFromArray(@polygons, polygon)
+
+  removePolygons: (polygons) ->
+    the_polygons = polygons.slice(0)
+
+    for polygon in the_polygons
+      @removePolygon(polygon)
 
   reset: ->
     for polygon in @polygons
@@ -118,7 +175,7 @@ class PolygonManager
 
     event_name = args.shift()
     if @callbacks[event_name]?
-      return @callbacks[event_name].apply(this, args)
+      return @callbacks[event_name].apply(@callbackContext, args)
     else
       return true
 
@@ -135,6 +192,13 @@ class PolygonManager
 
   _resetCursor: () ->
     @map.setOptions({draggableCursor:'url(http://maps.gstatic.com/mapfiles/openhand_8_8.cur) 8 8, default '});
+
+  removeFromArray = (array, obj) ->
+    i = array.indexOf(obj)
+    res = []
+    if i != -1
+      res = array.splice(i, 1)
+    return res[0]
 
 
 G.PolygonManager = PolygonManager

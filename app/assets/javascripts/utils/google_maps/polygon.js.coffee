@@ -6,22 +6,29 @@ class Polygon
   listOfDots: null,
   map: null,
   coords: null,
-  manager: null,
+  callbackContext: null,
   polygonObj: null,
   events: null,
   isDragging: false,
+  callbacks: null,
   _defaultColor: '#f00',
 
   constructor: (listOfDots, options={}) ->
     @listOfDots = listOfDots
     @map = options['map']
-    @manager = options['manager']
     @coords = new Array
     @events = new Array
+    @callbackContext = options['callbackContext'] || @
+    @callbacks =
+      polygon_changed:    options['onPolygonChanged']
+      polygon_clicked:    options['onPolygonClicked']
+      polygon_selected:   options['onPolygonSelected']
+      polygon_deselected: options['onPolygonDeselected']
+      polygon_removed:    options['onPolygonRemoved']
 
     _this = this
     editable = options['editable']
-    color = options['color'] || @defaultColor
+    color = options['color'] || @_defaultColor
 
     $.each @listOfDots, (index, value) ->
       _this.addDot value
@@ -44,32 +51,27 @@ class Polygon
     path = @polygonObj.getPath()
 
     @events.push google.maps.event.addListener @polygonObj, 'dragstart', (event) ->
-        _this.isDragging = true
-        _this.manager.trigger 'polygon_changed', _this, 'remove'
+      _this.isDragging = true
 
     @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
       _this.isDragging = false
-      _this.manager.trigger 'polygon_changed', _this, 'drag'
+      _this.trigger 'polygon_changed', _this, 'drag'
 
     @events.push google.maps.event.addListener path, 'insert_at', (event) ->
       unless _this.isDragging
-        _this.manager.trigger 'polygon_changed', _this, 'insert'
+        _this.trigger 'polygon_changed', _this, 'insert'
 
     @events.push google.maps.event.addListener path, 'set_at', (event) ->
       unless _this.isDragging
-        _this.manager.trigger 'polygon_changed', _this, 'move'
+        _this.trigger 'polygon_changed', _this, 'move'
 
     @events.push google.maps.event.addListener path, 'remove_at', (event) ->
       unless _this.isDragging
-        _this.manager.trigger 'polygon_changed', _this, 'remove'
+        _this.trigger 'polygon_changed', _this, 'remove'
 
     @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
       unless _this.isDragging
-        if _this.isEditable()
-          _this.manager.trigger 'polygon_clicked', _this, event.latLng, false
-        else
-          _this.manager.deselectAll(false)
-          _this.select()
+        _this.trigger 'polygon_clicked', _this, event, false
 
     @events.push google.maps.event.addListener @polygonObj, 'rightclick', (event) ->
       if event.vertex?
@@ -78,13 +80,18 @@ class Polygon
         else
           path.removeAt(event.vertex)
       else
-        _this.manager.trigger 'polygon_clicked', _this, event.latLng, true
-
+        _this.trigger 'polygon_clicked', _this, event, true
 
   remove: ->
     @polygonObj.setMap(null)
+    @removeListeners()
+    @trigger 'polygon_removed', @
+
+  removeListeners: ->
     for event in @events
-      google.maps.event.removeListener event
+      google.maps.event.removeListener(event)
+
+    @events = new Array()
 
   addDot: (value) ->
     latLng = if (value instanceof G.Dot) then value.latLng else value
@@ -110,15 +117,12 @@ class Polygon
     @getPolygonObj().setMap(@map)
 
   select: ->
-    @manager.selectedPolygon = @
     @setEditable(true)
-    @manager.trigger 'polygon_selected', @
+    @trigger 'polygon_selected', @
 
   deselect: ->
-    @manager.selectedPolygon = null
-    if @isEditable()
-      @setEditable(false)
-      @manager.trigger 'polygon_deselected', @
+    @setEditable(false)
+    @trigger 'polygon_deselected', @
 
   setEditable: (editable) ->
     @getPolygonObj().setOptions
@@ -134,5 +138,20 @@ class Polygon
     paths.getAt(0).forEach (value, index) ->
       data.push({lat: value.A, lng: value.F})
     return data
+
+  trigger: () ->
+    return if (arguments.length == 0)
+
+    args = []
+    Array.prototype.push.apply(args, arguments)
+
+    event_name = args.shift()
+    if @callbacks[event_name]?
+      return @callbacks[event_name].apply(@callbackContext, args)
+    else
+      return true
+
+  on: (event_name, callback) ->
+    @callbacks[event_name] = callback
 
 G.Polygon = Polygon

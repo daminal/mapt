@@ -37,11 +37,11 @@ class ZonesController
     manager = createPolygonManager map, initialPolygons
 
     $('#addZone').click ->
-      manager.startDraw()
+      manager.enableDraw()
       $(this).attr('disabled','disabled')
 
     $('#removeZone').click ->
-      manager.removePolygon(manager.selectedPolygon)
+      manager.removePolygons(manager.getSelectedPolygons())
 
     $('#reset').click ->
       manager.reset()
@@ -109,6 +109,10 @@ class ZonesController
       polygons: initialPolygons
       drawColor: '#0f0'
       newPolygonColor: '#000'
+      selectMultiple: true
+      onReady: ->
+        console.log('PolygonManager is ready')
+
       onStartDraw: ->
         enableButton('#addZone')
         console.log('Start Draw')
@@ -128,6 +132,10 @@ class ZonesController
 
         # Return true if ok to add polygon to the map.  Return false to avoid adding the polygon to the map
         return true
+
+      onDotAdded: (dot) ->
+        console.log(dot)
+        console.log('Dot added')
 
       onPolygonChanged: (polygon, type) ->
         console.log(polygon.getData())
@@ -159,6 +167,10 @@ class ZonesController
           console.log('Polygon right clicked')
         else
           console.log('Polygon left clicked')
+
+      onPolygonAdded: (polygon) ->
+        console.log(polygon)
+        console.log('Polygon added')
 
       onPolygonRemoved: (polygon) ->
         disableButton('#removeZone')

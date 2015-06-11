@@ -91,7 +91,7 @@ class PolygonManager
     if polygon.isEditable() || right_click
       @trigger 'polygon_clicked', polygon, event.latLng, right_click
     else
-      selectMultiple = @selectMultiple && event.eb.metaKey
+      selectMultiple = @selectMultiple && (event.eb.metaKey || event.eb.shiftKey || event.eb.ctrlKey)
       @selectPolygon(polygon, !selectMultiple)
 
   deselectPolygon: (polygon) ->

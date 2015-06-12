@@ -111,8 +111,9 @@ class ZonesController
       drawColor: '#0f0'
       newPolygonColor: '#000'
       selectMultiple: true
-      editable: false
+      editable: true # false
       onReady: (manager) ->
+        $('#side input[type=button]').attr('disabled','disabled') unless manager.editable
         console.log('PolygonManager is ready')
 
       onStartDraw: ->

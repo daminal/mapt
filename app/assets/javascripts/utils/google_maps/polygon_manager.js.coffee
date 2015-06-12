@@ -48,6 +48,10 @@ class PolygonManager
 
     @addPolygons(options['polygons']) if options['polygons']?
 
+    unless @editable
+      for polygon in @polygons
+        polygon.setEditable(false)
+
     # Add google maps event listeners
     _this = @
     @events.push google.maps.event.addDomListener @map, 'click', (event) ->

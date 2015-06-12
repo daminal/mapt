@@ -25,24 +25,12 @@ class Pen
       cancel_draw: options['onCancelDraw']
       dot_added:   options['onDotAdded']
 
-    @addListeners()
-
-  addListeners: ->
-    @events = new Array()
-    _this = @
-
-    @events.push google.maps.event.addDomListener @map, 'click', (event) ->
-      _this.draw(event.latLng)
-    @events.push google.maps.event.addDomListener window, 'keyup', (event) ->
-      code = if event.keyCode then event.keyCode else event.which
-      switch code
-        when 27
-          _this.trigger 'cancel_draw'
+    @_addListeners()
 
   draw: (latLng) ->
     @isDrawing = true
     if @currentDot? and @listOfDots.length > 1 and @currentDot.latLng == @listOfDots[0].latLng
-      @trigger 'finish_draw', @
+      @_trigger 'finish_draw', @
       @clear()
       @isDrawing = false
     else
@@ -51,21 +39,20 @@ class Pen
 
       dot = new G.Dot latLng, @map,
         callbackContext: @
-        onDotClicked: @dotClicked
+        onDotClicked: @_dotClicked
       @listOfDots.push(dot)
 
       if @listOfDots.length == 1
-        @trigger 'start_draw', @
+        @_trigger 'start_draw', @
 
       if @listOfDots.length > 1
         _this = this
         @polyline = new G.Line @listOfDots, @map, @color
-        @trigger 'dot_added', dot
+        @_trigger 'dot_added', dot
 
 
-  dotClicked: (dot) ->
-    @setCurrentDot dot
-    @draw dot.getMarkerObj().getPosition()
+  getListOfDots: ->
+    @listOfDots
 
   clear: ->
     $.each @listOfDots, (index, value) ->
@@ -77,21 +64,22 @@ class Pen
 
   remove: ->
     @clear()
-    @removeListeners()
-
-  removeListeners: ->
-    for event in @events
-      google.maps.event.removeListener(event)
+    @_removeListeners()
 
     @events = new Array()
 
-  setCurrentDot: (dot) ->
+  on: (event_name, callback) ->
+    @callbacks[event_name] = callback
+
+
+  _setCurrentDot: (dot) ->
     @currentDot = dot
 
-  getListOfDots: ->
-    @listOfDots
+  _dotClicked: (dot) ->
+    @_setCurrentDot dot
+    @draw dot.getMarkerObj().getPosition()
 
-  trigger: () ->
+  _trigger: () ->
     return if (arguments.length == 0)
 
     args = []
@@ -103,7 +91,21 @@ class Pen
     else
       return true
 
-  on: (event_name, callback) ->
-    @callbacks[event_name] = callback
+  _addListeners: ->
+    @events = new Array()
+    _this = @
+
+    @events.push google.maps.event.addDomListener @map, 'click', (event) ->
+      _this.draw(event.latLng)
+    @events.push google.maps.event.addDomListener window, 'keyup', (event) ->
+      code = if event.keyCode then event.keyCode else event.which
+      switch code
+        when 27
+          _this._trigger 'cancel_draw'
+
+
+  _removeListeners: ->
+    for event in @events
+      google.maps.event.removeListener(event)
 
 G.Pen = Pen

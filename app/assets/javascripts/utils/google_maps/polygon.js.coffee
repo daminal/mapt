@@ -47,56 +47,12 @@ class Polygon
 
     @_addListeners()
 
-  _addListeners: ->
-    _this = @
-    path = @polygonObj.getPath()
-
-    @events.push google.maps.event.addListener @polygonObj, 'dragstart', (event) ->
-      _this.isDragging = true
-
-    @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
-      _this.isDragging = false
-      _this.trigger 'polygon_changed', _this, 'drag'
-
-    @events.push google.maps.event.addListener path, 'insert_at', (event) ->
-      unless _this.isDragging
-        _this.trigger 'polygon_changed', _this, 'insert'
-
-    @events.push google.maps.event.addListener path, 'set_at', (event) ->
-      unless _this.isDragging
-        _this.trigger 'polygon_changed', _this, 'move'
-
-    @events.push google.maps.event.addListener path, 'remove_at', (event) ->
-      unless _this.isDragging
-        _this.trigger 'polygon_changed', _this, 'remove'
-
-    @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
-      unless _this.isDragging
-        _this.trigger 'polygon_clicked', _this, event, false
-
-    @events.push google.maps.event.addListener @polygonObj, 'rightclick', (event) ->
-      if event.vertex?
-        if path.length == 2
-          _this.remove()
-        else
-          path.removeAt(event.vertex)
-      else
-        _this.trigger 'polygon_clicked', _this, event, true
-
-  remove: ->
-    @polygonObj.setMap(null)
-    @removeListeners()
-    @trigger 'polygon_removed', @
-
-  removeListeners: ->
-    for event in @events
-      google.maps.event.removeListener(event)
-
-    @events = new Array()
-
-  addDot: (value) ->
-    latLng = if (value instanceof G.Dot) then value.latLng else value
-    @coords.push(latLng)
+  getData: ->
+    data = []
+    paths = @getPlots()
+    paths.getAt(0).forEach (value, index) ->
+      data.push({lat: value.A, lng: value.F})
+    return data
 
   getPolygonObj: ->
     @polygonObj
@@ -107,40 +63,45 @@ class Polygon
   getPlots: ->
     @polygonObj.getPaths()
 
+  isEditable: ->
+    @getPolygonObj().editable
+
   setColor: (color='#f00') ->
     @getPolygonObj().setOptions
       fillColor: color
       strokeColor: color
       strokeWeight: 2
 
-  setMap: (map) ->
-    @map = map
-    @getPolygonObj().setMap(@map)
-
-  select: ->
-    @setEditable(true)
-    @trigger 'polygon_selected', @
-
-  deselect: ->
-    @setEditable(false)
-    @trigger 'polygon_deselected', @
-
   setEditable: (editable) ->
     @getPolygonObj().setOptions
       editable: editable
       draggable: editable
 
-  isEditable: ->
-    @getPolygonObj().editable
+  setMap: (map) ->
+    @map = map
+    @getPolygonObj().setMap(@map)
 
-  getData: ->
-    data = []
-    paths = @getPlots()
-    paths.getAt(0).forEach (value, index) ->
-      data.push({lat: value.A, lng: value.F})
-    return data
+  addDot: (value) ->
+    latLng = if (value instanceof G.Dot) then value.latLng else value
+    @coords.push(latLng)
 
-  trigger: () ->
+  select: ->
+    @setEditable(true)
+    @_trigger 'polygon_selected', @
+
+  deselect: ->
+    @setEditable(false)
+    @_trigger 'polygon_deselected', @
+
+  remove: ->
+    @polygonObj.setMap(null)
+    @_removeListeners()
+    @_trigger 'polygon_removed', @
+
+  on: (event_name, callback) ->
+    @callbacks[event_name] = callback
+
+  _trigger: () ->
     return if (arguments.length == 0)
 
     args = []
@@ -152,7 +113,46 @@ class Polygon
     else
       return true
 
-  on: (event_name, callback) ->
-    @callbacks[event_name] = callback
+  _addListeners: ->
+    _this = @
+    path = @polygonObj.getPath()
+
+    @events.push google.maps.event.addListener @polygonObj, 'dragstart', (event) ->
+      _this.isDragging = true
+
+    @events.push google.maps.event.addListener @polygonObj, 'dragend', (event) ->
+      _this.isDragging = false
+      _this._trigger 'polygon_changed', _this, 'drag'
+
+    @events.push google.maps.event.addListener path, 'insert_at', (event) ->
+      unless _this.isDragging
+        _this._trigger 'polygon_changed', _this, 'insert'
+
+    @events.push google.maps.event.addListener path, 'set_at', (event) ->
+      unless _this.isDragging
+        _this._trigger 'polygon_changed', _this, 'move'
+
+    @events.push google.maps.event.addListener path, 'remove_at', (event) ->
+      unless _this.isDragging
+        _this._trigger 'polygon_changed', _this, 'remove'
+
+    @events.push google.maps.event.addDomListener @polygonObj, 'click', (event) ->
+      unless _this.isDragging
+        _this._trigger 'polygon_clicked', _this, event, false
+
+    @events.push google.maps.event.addListener @polygonObj, 'rightclick', (event) ->
+      if event.vertex?
+        if path.length == 2
+          _this.remove()
+        else
+          path.removeAt(event.vertex)
+      else
+        _this._trigger 'polygon_clicked', _this, event, true
+
+  _removeListeners: ->
+    for event in @events
+      google.maps.event.removeListener(event)
+
+    @events = new Array()
 
 G.Polygon = Polygon

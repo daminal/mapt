@@ -13,6 +13,7 @@ class PolygonManager
   events: null,
   drawColor: null,
   newPolygonColor: null,
+  editable: null,
   callbackContext: null,
   callbacks: null,
 
@@ -26,7 +27,7 @@ class PolygonManager
     @drawColor = options['drawColor'] if options['drawColor']?
     @newPolygonColor = options['newPolygonColor'] || '#f00'
     @selectMultiple = options['selectMultiple'] || false
-
+    @editable = if options['editable']? then options['editable'] else true
 
     @callbackContext = options['callbackContext'] || @
 
@@ -53,9 +54,10 @@ class PolygonManager
       unless _this.pen?
         _this.deselectAll()
 
-    @trigger 'ready', @
+    @_trigger 'ready', @
 
   enableDraw: (color=null, newPolygonColor=null) ->
+    return unless @editable
     @deselectAll()
     @pen = new G.Pen @map,
       color: color || @drawColor,
@@ -67,42 +69,6 @@ class PolygonManager
 
     @map.setOptions({draggableCursor:'pointer'});
 
-    @trigger 'enable_draw', @pen
-
-  _cancelDraw: (pen) ->
-    if @pen?
-      @pen.remove()
-      @pen = null
-    @_resetCursor()
-    @trigger 'cancel_draw'
-
-  _finishDraw: (pen) ->
-    @_resetCursor()
-    polygon = new G.Polygon @pen.listOfDots,
-      color: @newPolygonColor
-
-    @addPolygon polygon
-    @selectPolygon(polygon)
-    @pen.remove()
-    @pen = null
-
-  _polygonClicked: (polygon, event, right_click) ->
-    if polygon.isEditable() || right_click
-      @trigger 'polygon_clicked', polygon, event.latLng, right_click
-    else
-      selectMultiple = @selectMultiple && (event.eb.metaKey || event.eb.shiftKey || event.eb.ctrlKey)
-      @selectPolygon(polygon, !selectMultiple)
-
-  deselectPolygon: (polygon) ->
-    polygon.deselect()
-    removeFromArray(@selectedPolygons, polygon)
-
-  deselectAll: ->
-    polygons = @selectedPolygons.slice(0)
-
-    for polygon in polygons
-      @deselectPolygon(polygon)
-
   setPolygons: (polygons) ->
     @reset()
     @addPolygons(polygons)
@@ -110,7 +76,7 @@ class PolygonManager
   addPolygon: (polygon_or_object, runCallback=true) ->
     polygon = if polygon_or_object instanceof G.Polygon then polygon_or_object else @_objectToPolygon(polygon_or_object)
 
-    if @trigger 'before_add_polygon', polygon
+    if @_trigger 'before_add_polygon', polygon
       polygon.setMap(@map)
       polygon.callbackContext = @
       polygon.on 'polygon_changed', @callbacks['polygon_changed']
@@ -119,7 +85,7 @@ class PolygonManager
       polygon.on 'polygon_deselected', @callbacks['polygon_deselected']
       polygon.on 'polygon_removed', @callbacks['polygon_removed']
       @polygons.push(polygon)
-      @trigger 'polygon_added', polygon if runCallback
+      @_trigger 'polygon_added', polygon if runCallback
       return polygon
 
   addPolygons: (polygons) ->
@@ -130,7 +96,26 @@ class PolygonManager
     for polygon in @polygons
       return polygon if polygon.id == id
 
+  getSelectedPolygon: ->
+    @selectedPolygons[0]
+
+  getSelectedPolygons: ->
+    @selectedPolygons
+
+  deselectPolygon: (polygon) ->
+    polygon.deselect()
+    _removeFromArray(@selectedPolygons, polygon)
+
+  deselectPolygons: (polygonArr) ->
+    polygons = polygonArr.slice(0)
+    for polygon in polygons
+      @deselectPolygon(polygon)
+
+  deselectAll: ->
+    @deselectPolygons(@selectedPolygons)
+
   selectPolygon: (polygon, deselectOthers=true) ->
+    return polygon unless @editable
     @deselectAll() if deselectOthers
     polygon.select()
     @selectedPolygons.push(polygon)
@@ -141,19 +126,13 @@ class PolygonManager
     @deselectAll()
     for polygon in polygons
       @selectPolygon(polygon, false)
-    @trigger 'polygons_selected', polygons
+    @_trigger 'polygons_selected', polygons
     polygons
-
-  getSelectedPolygon: ->
-    @selectedPolygons[0]
-
-  getSelectedPolygons: ->
-    @selectedPolygons
 
   removePolygon: (polygon) ->
     @deselectPolygon(polygon)
     polygon.remove()
-    removeFromArray(@polygons, polygon)
+    _removeFromArray(@polygons, polygon)
 
   removePolygons: (polygons) ->
     the_polygons = polygons.slice(0)
@@ -168,7 +147,15 @@ class PolygonManager
     @polygons = []
     @_resetCursor()
 
-  trigger: () ->
+  destroy: ->
+    @reset()
+    for event in @events
+      google.maps.event.removeListener event
+
+  on: (event_name, callback) ->
+    @callbacks[event_name] = callback
+
+  _trigger: () ->
     return if (arguments.length == 0)
 
     args = []
@@ -180,13 +167,36 @@ class PolygonManager
     else
       return true
 
-  on: (event_name, callback) ->
-    @callbacks[event_name] = callback
+  _removeFromArray = (array, obj) ->
+    i = array.indexOf(obj)
+    res = []
+    if i != -1
+      res = array.splice(i, 1)
+    return res[0]
 
-  destroy: ->
-    @reset()
-    for event in @events
-      google.maps.event.removeListener event
+  _cancelDraw: (pen) ->
+    if @pen?
+      @pen.remove()
+      @pen = null
+    @_resetCursor()
+    @_trigger 'cancel_draw'
+
+  _finishDraw: (pen) ->
+    @_resetCursor()
+    polygon = new G.Polygon @pen.listOfDots,
+      color: @newPolygonColor
+
+    @addPolygon polygon
+    @selectPolygon(polygon)
+    @pen.remove()
+    @pen = null
+
+  _polygonClicked: (polygon, event, right_click) ->
+    if polygon.isEditable() || right_click
+      @_trigger 'polygon_clicked', polygon, event.latLng, right_click
+    else
+      selectMultiple = @selectMultiple && (event.eb.metaKey || event.eb.shiftKey || event.eb.ctrlKey)
+      @selectPolygon(polygon, !selectMultiple)
 
   _mapClicked: (event) ->
     @pen.draw event.latLng if @pen?
@@ -196,13 +206,4 @@ class PolygonManager
 
   _objectToPolygon: (obj) ->
     new G.Polygon obj['coords'], {id: obj['id'], color: obj['color']}
-
-  removeFromArray = (array, obj) ->
-    i = array.indexOf(obj)
-    res = []
-    if i != -1
-      res = array.splice(i, 1)
-    return res[0]
-
-
 G.PolygonManager = PolygonManager

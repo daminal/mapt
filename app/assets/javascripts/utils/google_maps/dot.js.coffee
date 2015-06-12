@@ -21,12 +21,6 @@ class Dot
 
     @_addListeners()
 
-  _addListeners: ->
-    _this = @
-
-    @events.push google.maps.event.addListener @markerObj, 'click', ->
-      _this.trigger 'dot_clicked', _this
-
   getLatLng: ->
     return @latLng
 
@@ -37,13 +31,10 @@ class Dot
     @markerObj.setMap(null)
     @_removeListeners()
 
-  _removeListeners: ->
-    for event in @events
-      google.maps.event.removeListener(event)
+  on: (event_name, callback) ->
+    @callbacks[event_name] = callback
 
-    @events = new Array()
-
-  trigger: () ->
+  _trigger: () ->
     return if (arguments.length == 0)
 
     args = []
@@ -55,7 +46,15 @@ class Dot
     else
       return true
 
-  on: (event_name, callback) ->
-    @callbacks[event_name] = callback
+  _addListeners: ->
+    _this = @
 
+    @events.push google.maps.event.addListener @markerObj, 'click', ->
+      _this._trigger 'dot_clicked', _this
+
+  _removeListeners: ->
+    for event in @events
+      google.maps.event.removeListener(event)
+
+    @events = new Array()
 G.Dot = Dot

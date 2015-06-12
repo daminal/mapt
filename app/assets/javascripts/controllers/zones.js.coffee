@@ -111,6 +111,7 @@ class ZonesController
       drawColor: '#0f0'
       newPolygonColor: '#000'
       selectMultiple: true
+      editable: false
       onReady: (manager) ->
         console.log('PolygonManager is ready')
 

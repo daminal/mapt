@@ -48,7 +48,7 @@ class Pen
       if @listOfDots.length > 1
         _this = this
         @polyline = new G.Line @listOfDots, @map, @color
-        @_trigger 'dot_added', dot
+      @_trigger 'dot_added', dot
 
 
   getListOfDots: ->

@@ -46,7 +46,7 @@ class PolygonManager
       polygon_deselected: options['onPolygonDeselected']
       polygon_removed:    options['onPolygonRemoved']
 
-    @addPolygons(options['polygons']) if options['polygons']?
+    @addPolygons(options['polygons'], false) if options['polygons']?
 
     unless @editable
       for polygon in @polygons

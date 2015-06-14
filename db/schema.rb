@@ -11,7 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150604192443) do
+ActiveRecord::Schema.define(version: 20150614195915) do
+
+  create_table "zone_coordinates", force: :cascade do |t|
+    t.integer  "zone_id",    limit: 4
+    t.decimal  "lat",                  precision: 10, scale: 6
+    t.decimal  "lng",                  precision: 10, scale: 6
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+  end
+
+  add_index "zone_coordinates", ["lat", "lng"], name: "index_zone_coordinates_on_lat_and_lng", using: :btree
 
   create_table "zones", force: :cascade do |t|
     t.string   "name",       limit: 255

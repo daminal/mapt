@@ -17,26 +17,8 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
-    # PolygonManager accepts an array of Polygon objects to show immediately
-    # You can use this to display existing zones loaded from the db when the page loads
-    # For now, I'm just creating one polygon here, wrapping it in an array, and passing
-    # it to createPolygonManager.  The result is that you see that polygon on the map
-    # when you load the page.
-    coords = [
-      new google.maps.LatLng(40.399605, -80.020731),
-      new google.maps.LatLng(40.590709, -79.862879),
-      new google.maps.LatLng(40.718521, -80.098347),
-      new google.maps.LatLng(40.525592, -80.22322)
-    ]
-    initialPolygons = [
-      {
-        coords: coords,
-        id: 123,
-        color: '#00f'
-      }
-    ]
 
-    manager = createPolygonManager(gmapsSimplePolygon.PolygonManager, map, initialPolygons)
+    manager = createPolygonManager(gmapsSimplePolygon.PolygonManager, map, window.zones_json)
     $('#addZone').click ->
       manager.enableDraw()
       $(this).attr('disabled','disabled')
@@ -118,14 +100,17 @@ class ZonesController
         console.log('PolygonManager is ready')
 
       onStartDraw: ->
-        enableButton('#addZone')
         console.log('Start Draw')
 
       onCancelDraw: ->
         enableButton('#addZone')
         console.log('Cancel Draw')
 
-      onFinishDraw: (polygon) ->
+      beforePolygonAdded: (polygon) ->
+        console.log('Before Polygon Added')
+        return true
+
+      onPolygonAdded: (polygon) ->
         enableButton('#addZone')
         console.log(polygon.getData())
         console.log('Polygon Created')
@@ -150,12 +135,18 @@ class ZonesController
 
       onPolygonSelected: (polygon) ->
         enableButton('#removeZone')
+        if(polygon.id?)
+          # existing one, show the edit form
+        else
+          # new one, show the new form
+          showNewForm(polygon)
         console.log(polygon)
         console.log('Polygon selected')
         # You can hook in here to display a form for editing or deleting this polygon
 
       onPolygonDeselected: (polygon) ->
         disableButton('#removeZone')
+        $('#newForm').hide()
         console.log(polygon.getData())
         console.log('Polygon deselected')
 
@@ -168,10 +159,6 @@ class ZonesController
         else
           console.log('Polygon left clicked')
 
-      onPolygonAdded: (polygon) ->
-        console.log(polygon)
-        console.log('Polygon added')
-
       onPolygonRemoved: (polygon) ->
         disableButton('#removeZone')
         console.log(polygon)
@@ -182,5 +169,18 @@ class ZonesController
 
   disableButton = (selector) ->
     $(selector).attr('disabled','disabled')
+
+  showNewForm = (polygon) ->
+    $('#newForm #zone_name').val('')
+    wrapper = $('#newForm #coords')
+    wrapper.html('')
+    i = 0
+    for coord in polygon.getData()
+      coord_lat_field = $("<input type='hidden' name='zone[coords_attributes][#{i}][lat]' value='#{coord.lat}'>")
+      coord_lng_field = $("<input type='hidden' name='zone[coords_attributes][#{i}][lng]' value='#{coord.lng}'>")
+      wrapper.append(coord_lat_field).append(coord_lng_field)
+      i = i + 1
+
+    $('#newForm').show()
 
 this.Mapt.zones= new ZonesController

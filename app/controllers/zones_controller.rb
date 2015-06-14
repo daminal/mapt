@@ -6,6 +6,7 @@ class ZonesController < ApplicationController
   # GET /zones.json
   def index
     @zones = Zone.all
+    @zones_json = @zones.to_json(only: [:id, :name], include: {coords: {only: [:lat,:lng]}})
   end
 
   # GET /zones/1
@@ -31,9 +32,11 @@ class ZonesController < ApplicationController
       if @zone.save
         format.html { redirect_to @zone, notice: 'Zone was successfully created.' }
         format.json { render :show, status: :created, location: @zone }
+        format.js
       else
         format.html { render :new }
         format.json { render json: @zone.errors, status: :unprocessable_entity }
+        format.js
       end
     end
   end
@@ -70,6 +73,6 @@ class ZonesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def zone_params
-      params.require(:zone).permit(:name)
+      params.require(:zone).permit(:name, coords_attributes:  [:lat, :lng])
     end
 end

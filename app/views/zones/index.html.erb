@@ -1,3 +1,6 @@
+<script>
+  var zones_json = <%=raw @zones_json %>;
+</script>
 <% if false %>
 <p id="notice"><%= notice %></p>
 
@@ -37,6 +40,16 @@
     <input id="showData"  value="Show Paths (class function) " type="button" class="navi"/>
   <% end %>
   <div   id="dataPanel">
+  </div>
+  <div id="newForm">
+    <h3>Zone attributes</h3>
+  <%= form_for Zone.new, data: {remote: true} do |f| %>
+    <%= f.text_field :name, placeholder: 'Name' %>
+      <div id="coords">
+
+      </div>
+    <%= f.submit %>
+  <% end %>
   </div>
 </div>
 

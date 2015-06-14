@@ -94,6 +94,9 @@ body[data-controller='zones'] {
   #map-canvas {
     height: 500px;
   }
+  #newForm {
+    display: none;
+  }
 }
 
 body[data-controller='zones'][data-action='new'],

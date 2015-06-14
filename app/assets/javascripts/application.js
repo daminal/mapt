@@ -12,8 +12,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require require
-//= require gmaps-polygon-manager
+//require require
+//= require gmaps-simple-polygon
 //= require mapt
 //= require_tree ./utils
 //= require_tree ./controllers

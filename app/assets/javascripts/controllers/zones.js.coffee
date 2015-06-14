@@ -20,39 +20,36 @@ class ZonesController
       center: new google.maps.LatLng(40.4503037, -79.95035596)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
+    # PolygonManager accepts an array of Polygon objects to show immediately
+    # You can use this to display existing zones loaded from the db when the page loads
+    # For now, I'm just creating one polygon here, wrapping it in an array, and passing
+    # it to createPolygonManager.  The result is that you see that polygon on the map
+    # when you load the page.
+    coords = [
+      new google.maps.LatLng(40.399605, -80.020731),
+      new google.maps.LatLng(40.590709, -79.862879),
+      new google.maps.LatLng(40.718521, -80.098347),
+      new google.maps.LatLng(40.525592, -80.22322)
+    ]
+    initialPolygons = [
+      {
+        coords: coords,
+        id: 123,
+        color: '#00f'
+      }
+    ]
 
+    window.manager = manager = createPolygonManager(gmapsSimplePolygon.PolygonManager, map, initialPolygons)
+    $('#addZone').click ->
+      manager.enableDraw()
+      $(this).attr('disabled','disabled')
 
-    require ['gmaps-polygon-manager', 'gmaps-polygon-manager/polygon'], (PolygonManager, Polygon) ->
-      # PolygonManager accepts an array of Polygon objects to show immediately
-      # You can use this to display existing zones loaded from the db when the page loads
-      # For now, I'm just creating one polygon here, wrapping it in an array, and passing
-      # it to createPolygonManager.  The result is that you see that polygon on the map
-      # when you load the page.
-      coords = [
-        new google.maps.LatLng(40.399605, -80.020731),
-        new google.maps.LatLng(40.590709, -79.862879),
-        new google.maps.LatLng(40.718521, -80.098347),
-        new google.maps.LatLng(40.525592, -80.22322)
-      ]
-      initialPolygons = [
-        {
-          coords: coords,
-          id: 123,
-          color: '#00f'
-        }
-      ]
+    $('#removeZone').click ->
+      manager.removePolygons(manager.getSelectedPolygons())
 
-      window.manager = manager = createPolygonManager(PolygonManager, map, initialPolygons)
-      $('#addZone').click ->
-        manager.enableDraw()
-        $(this).attr('disabled','disabled')
-
-      $('#removeZone').click ->
-        manager.removePolygons(manager.getSelectedPolygons())
-
-      $('#reset').click ->
-        manager.reset()
-        $('#addZone').removeAttr('disabled')
+    $('#reset').click ->
+      manager.reset()
+      $('#addZone').removeAttr('disabled')
 
 #    manager = createPolygonManager map, initialPolygons
 

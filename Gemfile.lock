@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/bdsabian/gmaps-simple-polygon-rails.git
+  revision: c068ccc2ee545c0045bbe6ad013f9091977d9116
+  specs:
+    gmaps-simple-polygon-rails (0.1.0)
+      railties (>= 3.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -141,6 +148,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   coffee-rails (~> 4.1.0)
+  gmaps-simple-polygon-rails!
   jbuilder (~> 2.0)
   jquery-rails
   mysql2

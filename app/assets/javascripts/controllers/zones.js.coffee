@@ -1,6 +1,3 @@
-#PolygonManager = this.Mapt.Utils.GoogleMaps.PolygonManager
-#Polygon = this.Mapt.Utils.GoogleMaps.Polygon
-
 ### Note:
     Given a polygon, you can get its data points like so:
 

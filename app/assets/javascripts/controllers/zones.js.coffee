@@ -36,7 +36,7 @@ class ZonesController
       }
     ]
 
-    window.manager = manager = createPolygonManager(gmapsSimplePolygon.PolygonManager, map, initialPolygons)
+    manager = createPolygonManager(gmapsSimplePolygon.PolygonManager, map, initialPolygons)
     $('#addZone').click ->
       manager.enableDraw()
       $(this).attr('disabled','disabled')

@@ -97,6 +97,9 @@ body[data-controller='zones'] {
   #newForm {
     display: none;
   }
+  #editForm {
+    display: none;
+  }
 }
 
 body[data-controller='zones'][data-action='new'],

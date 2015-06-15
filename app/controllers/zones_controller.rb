@@ -6,7 +6,27 @@ class ZonesController < ApplicationController
   # GET /zones.json
   def index
     @zones = Zone.all
-    @zones_json = @zones.to_json(only: [:id, :name], include: {coords: {only: [:lat,:lng]}})
+    zones_for_json = []
+    # The zone model has id, name, and coords.  But PolygonManager expects any data other than id and coords
+    # to be in a property called meta in the json object.  So, we need to make a new array that has the zones
+    # in this format.  The following loop creates that array.
+    @zones.each do |zone|
+      # Create a new hash to represent this zone.  For now, we include, the id, any data we want in meta (in
+      # this case we just need the name), and set coords as an empty array that we can add coordinate hashes to
+      zone_obj = {id: zone.id, meta: {name: zone.name}, coords: []}
+
+      # Here we loop through the coordinates for this zone and add a hash with the keys lat and lng for each
+      # coordinate to the zone's coords key that we previously set as an empty array
+      zone.coords.each do |coord|
+        zone_obj[:coords] << {lat: coord.lat, lng: coord.lng}
+      end
+
+      # Add this new zone object to the zones_for_json array
+      zones_for_json << zone_obj
+    end
+
+    # Now we convert that array to json:
+    @zones_json = zones_for_json.to_json
   end
 
   # GET /zones/1
@@ -44,13 +64,16 @@ class ZonesController < ApplicationController
   # PATCH/PUT /zones/1
   # PATCH/PUT /zones/1.json
   def update
+    @zone.coords.delete_all
     respond_to do |format|
       if @zone.update(zone_params)
         format.html { redirect_to @zone, notice: 'Zone was successfully updated.' }
         format.json { render :show, status: :ok, location: @zone }
+        format.js
       else
         format.html { render :edit }
         format.json { render json: @zone.errors, status: :unprocessable_entity }
+        format.js
       end
     end
   end

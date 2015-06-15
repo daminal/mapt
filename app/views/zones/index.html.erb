@@ -2,32 +2,32 @@
   var zones_json = <%=raw @zones_json %>;
 </script>
 <% if false %>
-<p id="notice"><%= notice %></p>
+  <p id="notice"><%= notice %></p>
 
-<h1>Listing Zones</h1>
+  <h1>Listing Zones</h1>
 
-<table>
-  <thead>
+  <table>
+    <thead>
     <tr>
       <th>Name</th>
       <th colspan="2"></th>
     </tr>
-  </thead>
+    </thead>
 
-  <tbody>
+    <tbody>
     <% @zones.each do |zone| %>
       <tr>
         <td><%= zone.name %></td>
         <td><%= link_to 'Edit', edit_zone_path(zone) %></td>
-        <td><%= link_to 'Destroy', zone, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', zone, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
     <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
 
-<br>
+  <br>
 
-<%= link_to 'New Zone', new_zone_path %>
+  <%= link_to 'New Zone', new_zone_path %>
 <% end %>
 
 <h1>Trash Zones</h1>
@@ -37,19 +37,26 @@
   <input id="reset" value="Reset" type="button" class="navi"/>
   <input id="removeZone" value="Remove Selected Zone(s)" type="button" class="navi" disabled="disabled"/>
   <% if false %>
-    <input id="showData"  value="Show Paths (class function) " type="button" class="navi"/>
+    <input id="showData" value="Show Paths (class function) " type="button" class="navi"/>
   <% end %>
-  <div   id="dataPanel">
+  <div id="dataPanel">
   </div>
   <div id="newForm">
     <h3>Zone attributes</h3>
-  <%= form_for Zone.new, data: {remote: true} do |f| %>
-    <%= f.text_field :name, placeholder: 'Name' %>
+    <%= form_for Zone.new, data: {remote: true} do |f| %>
+      <%= f.text_field :name, placeholder: 'Name' %>
       <div id="coords">
-
       </div>
-    <%= f.submit %>
-  <% end %>
+      <%= f.submit %>
+    <% end %>
+  </div>
+  <div id="editForm" data-url="<%= zone_path(-1) %>">
+    <%= form_for Zone.new, method: :put, html: {id: 'edit_form', class: 'edit_form'}, data: {remote: true} do |f| %>
+      <%= f.text_field :name, placeholder: 'Name' %>
+      <div id="coords">
+      </div>
+      <%= f.submit 'Save Zone' %>
+    <% end %>
   </div>
 </div>
 

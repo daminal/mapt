@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/bdsabian/gmaps-simple-polygon-rails.git
-  revision: 2dedc2dc8fc2244079872ee399294b07de15965a
+  revision: dd93e1924a77000d424f33346e47eff43a20d8d1
   specs:
     gmaps-simple-polygon-rails (0.1.0)
       railties (>= 3.1)

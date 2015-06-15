@@ -127,6 +127,7 @@ class ZonesController
         console.log('Dot added')
 
       onPolygonChanged: (polygon, type) ->
+        updateCoordinates(polygon)
         console.log(polygon.getData())
         console.log("Polygon Changed (#{type})")
         # You can hook in here to make a call to the server to update the zone in the database
@@ -137,6 +138,7 @@ class ZonesController
         enableButton('#removeZone')
         if(polygon.id?)
           # existing one, show the edit form
+          showEditForm(polygon)
         else
           # new one, show the new form
           showNewForm(polygon)
@@ -171,16 +173,34 @@ class ZonesController
     $(selector).attr('disabled','disabled')
 
   showNewForm = (polygon) ->
-    $('#newForm #zone_name').val('')
-    wrapper = $('#newForm #coords')
-    wrapper.html('')
+    formWrapper = $('#newForm')
+    $('#zone_name', formWrapper).val('')
+    updateCoordinates(polygon)
+
+    formWrapper.show()
+
+  showEditForm = (polygon) ->
+    formWrapper = $('#editForm')
+    $('#zone_name', formWrapper).val(polygon.getMeta('name'))
+    updateCoordinates(polygon)
+
+    submitUrl = formWrapper.data('url')
+    $('form', formWrapper).attr('action', submitUrl.replace('-1', polygon.id))
+    formWrapper.show()
+
+  updateCoordinates = (polygon) ->
+    formWrapper = if polygon.id? then $('#editForm') else $('#newForm')
+    coordsWrapper = $('#coords', formWrapper)
+    coords = polygon.getData()
+    generateCoordinateFields(coordsWrapper, coords)
+
+  generateCoordinateFields = (coordsWrapper, coords) ->
+    coordsWrapper.html('')
     i = 0
-    for coord in polygon.getData()
+    for coord in coords
       coord_lat_field = $("<input type='hidden' name='zone[coords_attributes][#{i}][lat]' value='#{coord.lat}'>")
       coord_lng_field = $("<input type='hidden' name='zone[coords_attributes][#{i}][lng]' value='#{coord.lng}'>")
-      wrapper.append(coord_lat_field).append(coord_lng_field)
+      coordsWrapper.append(coord_lat_field).append(coord_lng_field)
       i = i + 1
-
-    $('#newForm').show()
 
 this.Mapt.zones= new ZonesController

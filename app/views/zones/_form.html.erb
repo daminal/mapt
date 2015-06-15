@@ -1,36 +1,7 @@
-<%= form_for(@zone) do |f| %>
-  <% if @zone.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@zone.errors.count, "error") %> prohibited this zone from being saved:</h2>
+<%= form_for Zone.new, data: {remote: true} do |f| %>
+  <%= f.text_field :name, placeholder: 'Name' %>
+  <div id="coords">
 
-      <ul>
-      <% @zone.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-
-  <span class="instructions"> Instructions:</span>
-  <ol>
-    <li>Enter the name of the zone. </li>
-    <li>Click on the map to bring up the first point and its red marker. </li>
-    <li>Keep clicking to build the shape. </li>
-    <li>Then, click the first point's red marker to finish the zone.</li>
-  </ol>
-  </p>
   </div>
-
-  <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
-  </div>
-
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+  <%= f.submit %>
 <% end %>
-
-<hr/>

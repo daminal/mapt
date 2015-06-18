@@ -51,11 +51,9 @@ class ZonesController < ApplicationController
     respond_to do |format|
       if @zone.save
         format.html { redirect_to @zone, notice: 'Zone was successfully created.' }
-        format.json { render :show, status: :created, location: @zone }
         format.js
       else
         format.html { render :new }
-        format.json { render json: @zone.errors, status: :unprocessable_entity }
         format.js
       end
     end
@@ -68,11 +66,9 @@ class ZonesController < ApplicationController
     respond_to do |format|
       if @zone.update(zone_params)
         format.html { redirect_to @zone, notice: 'Zone was successfully updated.' }
-        format.json { render :show, status: :ok, location: @zone }
         format.js
       else
         format.html { render :edit }
-        format.json { render json: @zone.errors, status: :unprocessable_entity }
         format.js
       end
     end

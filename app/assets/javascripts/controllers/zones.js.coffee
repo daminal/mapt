@@ -11,11 +11,34 @@ class ZonesController
   init: ->
   index: ->
     manager = null
-    myStyles = [ {
-      featureType: 'poi'
-      elementType: 'labels'
-      stylers: [ { visibility: 'off' } ]
-    } ]
+
+    myStyles = [
+      {
+        "featureType": "landscape",
+        "elementType": "labels",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },{
+        "featureType": "poi",
+        "elementType": "labels",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },{
+        "featureType": "transit",
+        "elementType": "labels",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },{
+        "featureType": "water",
+        "elementType": "labels",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      }
+    ]
     map = new google.maps.Map document.getElementById('map-canvas'),
       zoom: 10
       center: new google.maps.LatLng(40.4503037, -79.95035596)

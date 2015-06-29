@@ -39,7 +39,7 @@ class ZonesController
       }
     ]
     map = new google.maps.Map document.getElementById('map-canvas'),
-      zoom: 12git
+      zoom: 12
       center: new google.maps.LatLng(0.3106203,32.5840622)
       mapTypeId: google.maps.MapTypeId.ROADMAP
       styles: myStyles
